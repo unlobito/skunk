@@ -1,0 +1,42 @@
+{
+	"uuid": "716c56e6-44f7-4ed4-82a5-779dbc560b62",
+	"shortName": "PebbleBucks",
+	"longName": "PebbleBucks",
+	"companyName": "Neal",
+	"versionCode": 1,
+	"versionLabel": "1.0.0",
+	"watchapp": {
+		"watchface": false
+	},
+	"appKeys": {
+		"rewards": 0,
+		"stars": 1,
+		"balance": 2,
+		"status": 3
+	},
+	"resources": {
+		"media": [
+			{
+				"menuIcon": true,
+				"type": "png",
+				"name": "IMAGE_MENU_ICON",
+				"file": "images/icon.png"
+			},
+			{
+				"type": "png",
+				"name": "IMAGE_BARCODE",
+				"file": "images/barcode.png"
+			},
+			{
+				"type": "png",
+				"name": "IMAGE_REWARD",
+				"file": "images/reward.png"
+			},
+			{
+				"type": "png",
+				"name": "IMAGE_STAR",
+				"file": "images/star.png"
+			}
+		]
+	}
+}

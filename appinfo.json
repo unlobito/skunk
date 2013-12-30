@@ -1,10 +1,10 @@
 {
-	"uuid": "716c56e6-44f7-4ed4-82a5-779dbc560b62",
+	"uuid": "7ff57cf2-bf8d-424c-bfd2-c64d8e886ae9",
 	"shortName": "PebbleBucks",
 	"longName": "PebbleBucks",
-	"companyName": "Neal",
+	"companyName": "Alexsander Akers",
 	"versionCode": 1,
-	"versionLabel": "1.0.0",
+	"versionLabel": "2.0.0",
 	"watchapp": {
 		"watchface": false
 	},

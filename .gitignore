@@ -1,5 +1,2 @@
 build
 .lock-waf*
-src/js/config.js
-src/js/pebble-js-app.js
-resources/images/barcode.png

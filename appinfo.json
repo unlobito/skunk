@@ -12,8 +12,10 @@
 		"rewards": 0,
 		"stars": 1,
 		"balance": 2,
-		"status": 3
+		"status": 3,
+		"barcode": 4
 	},
+	"capabilities": [ "configurable" ],
 	"resources": {
 		"media": [
 			{
@@ -21,11 +23,6 @@
 				"type": "png",
 				"name": "IMAGE_MENU_ICON",
 				"file": "images/icon.png"
-			},
-			{
-				"type": "png",
-				"name": "IMAGE_BARCODE",
-				"file": "images/barcode.png"
 			},
 			{
 				"type": "png",

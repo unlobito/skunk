@@ -1,117 +1,128 @@
-var currentXHR = null;
+(function() {
+  var currentXHR = null;
 
-function fetch() {
-	if (currentXHR) {
-		currentXHR.abort();
-		currentXHR = null;
-	}
+  function storage(key, value) {
+    var ls = window.localStorage;
+    return (arguments.length > 1) ? ls.setItem(key, value) : ls.getItem(key);
+  }
 
-	function sendError(error) {
-		Pebble.sendAppMessage({
-			rewards: "?",
-			stars: "?",
-			balance: "Error",
-			status: error || "Log in to Sbux in Pebble app."
-		});
-	};
+  function sendResponse(rewards, stars, balance, status) {
+    Pebble.sendAppMessage({
+      rewards: rewards,
+      stars: stars,
+      balance: balance,
+      status: status
+    });
+  }
 
-	var username = window.localStorage.getItem('username');
-	var password = window.localStorage.getItem('password');
-	if (!(username && password)) {
-		sendError();
-		return;
-	}
+  function sendError(error) {
+    sendResponse("?", "?", "Error", error || "Log in to Sbux in Pebble app.");
+  }
 
-	function failure(that) {
-		var theOther = that || this;
-		sendError(theOther.status + ' ' + theOther.statusText);
-	};
+  function fetch() {
+    if (currentXHR) {
+      currentXHR.abort();
+    }
 
-	function startLoad() {
-		currentXHR = this;
-	};
+    var username = storage('username');
+    var password = storage('password');
+    if (username && password) {
+      function failure(that) {
+        that = that || this;
+        sendError('HTTP Error ' + that.status);
+      };
 
-	var postXHR = new XMLHttpRequest();
-	postXHR.open('POST', 'https://www.starbucks.com/account/signin', true);
-	postXHR.onloadstart = startLoad;
-	postXHR.onload = function() {
-		if (postXHR.readyState != 4) return;
+      function startLoad() {
+        currentXHR = this;
+      };
 
-		if (postXHR.status < 200 || postXHR.status > 299) {
-			failure(this);
-			return;
-		}
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://www.starbucks.com/account/signin', true);
+      xhr.onloadstart = startLoad;
+      xhr.onload = function() {
+        if (xhr.readyState != 4) return;
 
-		var getXHR = new XMLHttpRequest();
-		getXHR.open('GET', 'https://www.starbucks.com/account/home', true);
-		getXHR.onloadstart = startLoad;
-		getXHR.onload = function() {
-			if (getXHR.readyState != 4) return;
+        if (xhr.status < 200 || xhr.status > 299) {
+          failure(this);
+          return;
+        }
 
-			if (getXHR.status < 200 || getXHR.status > 299) {
-				failure(this);
-				return;
-			};
+        xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://www.starbucks.com/account/home', true);
+        xhr.onloadstart = startLoad;
+        xhr.onload = function() {
+          if (xhr.readyState != 4) return;
 
-			function parseResponseText(key) {
-				var re = new RegExp(key + ": '([^']+?)'", "ig");
-				var match = re.exec(getXHR.responseText);
-				return match ? match[1] : '';
-			}
+          if (xhr.status < 200 || xhr.status > 299) {
+            failure(this);
+            return;
+          };
 
-			if (parseResponseText('customer_full_name')) {
-				var rewards = parseResponseText('num_unredeemed_rewards') || '0';
-				var stars = parseResponseText('num_stars_till_next_drink') || '0';
-				var balance = parseResponseText('card_dollar_balance');
-				if (balance) {
-					balance = '$' + parseFloat(Math.round(balance * 100) / 100).toFixed(2);
-				} else {
-					balance = '$0';
-				}
-				var dateUpdated = parseResponseText('card_balance_date');
-				var timeUpdated = parseResponseText('card_balance_time');
-				var status = (dateUpdated && timeUpdated) ? (dateUpdated + '\n' + timeUpdated) : '';
-				Pebble.sendAppMessage({
-					rewards: rewards,
-					stars: stars,
-					balance: balance,
-					status: status
-				});
-			} else {
-				sendError();
-			}
-		};
-		getXHR.onerror = failure;
-		getXHR.send(null);
+          function parseResponseText(key) {
+            var re = new RegExp(key + ": '([^']+?)'", "ig");
+            var match = re.exec(xhr.responseText);
+            return match ? match[1] : '';
+          }
 
-		Pebble.sendAppMessage({ status: 'Retrieving balance...' });
-	};
-	postXHR.onerror = failure;
+          if (parseResponseText('customer_full_name')) {
+            var rewards = parseResponseText('num_unredeemed_rewards') || '0';
+            var stars = parseResponseText('num_stars_till_next_drink') || '0';
+            var balance = parseResponseText('card_dollar_balance');
+            if (balance) {
+              balance = '$' + parseFloat(Math.round(balance * 100) / 100).toFixed(2);
+            } else {
+              balance = '$0';
+            }
+            var dateUpdated = parseResponseText('card_balance_date');
+            var timeUpdated = parseResponseText('card_balance_time');
+            var status = (dateUpdated && timeUpdated) ? (dateUpdated + '\n' + timeUpdated) : '';
+            Pebble.sendAppMessage({
+              rewards: rewards,
+              stars: stars,
+              balance: balance,
+              status: status
+            });
+          } else {
+            sendError();
+          }
+        };
+        xhr.onerror = failure;
+        xhr.send(null);
 
-	var params = 'Account.UserName=' + encodeURIComponent(username) + '&Account.PassWord=' + encodeURIComponent(password);
-	postXHR.send(params);
+        Pebble.sendAppMessage({ status: 'Retrieving balance...' });
+      };
+      xhr.onerror = failure;
 
-	Pebble.sendAppMessage({ status: 'Logging in...' });
-}
+      var params = 'Account.UserName=' + encodeURIComponent(username) + '&Account.PassWord=' + encodeURIComponent(password);
+      xhr.send(params);
 
-Pebble.addEventListener('ready', fetch);
-Pebble.addEventListener('appmessage', fetch);
+      Pebble.sendAppMessage({ status: 'Logging in...' });
+    } else {
+      sendError();
+    }
+  }
 
-Pebble.addEventListener("webviewclosed", function(e) {
-	if (!e.response) return;
-	var payload = JSON.parse(decodeURIComponent(e.response));
-	var keys = [ 'card_number', 'username', 'password' ];
-	for (var i = 0; i < keys.length; i++) {
-		var key = keys[i];
-		if (payload[key]) {
-			window.localStorage.setItem(key, payload[key]);
-		}
-	}
-	if (payload.barcode_data) Pebble.sendAppMessage({ barcode: payload.barcode_data });
-});
+  Pebble.addEventListener('ready', fetch);
+  Pebble.addEventListener('appmessage', fetch);
 
-Pebble.addEventListener("showConfiguration", function() {
-	var card_number = window.localStorage.getItem('card_number') || '';
-	var username = window.localStorage.getItem('username') || '';
-	Pebble.openURL('http://a2.github.io/PebbleBucks/configure.html?card_number=' + encodeURIComponent(card_number) + '&username=' + encodeURIComponent(username));
-});
+  Pebble.addEventListener("webviewclosed", function(e) {
+    if (!e.response) return;
+    var payload = JSON.parse(decodeURIComponent(e.response));
+
+    function storeKeyFromPayload(key) {
+      if (payload[key]) storage(key, payload[key]);
+    }
+
+    storeKeyFromPayload('card_number');
+    storeKeyFromPayload('username');
+    storeKeyFromPayload('password');
+    
+    if (payload.barcode_data) Pebble.sendAppMessage({ barcode: payload.barcode_data });
+  });
+
+  Pebble.addEventListener("showConfiguration", function() {
+    var card_number = storage('card_number') || '';
+    var username = storage('username') || '';
+    Pebble.openURL('http://a2.github.io/PebbleBucks/configure.html?card_number=' + encodeURIComponent(card_number) + '&username=' + encodeURIComponent(username));
+  });
+}).call(this);

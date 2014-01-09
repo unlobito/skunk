@@ -1,4 +1,4 @@
-![Screenshot](http://pnd.mn/1aY4/image.png)
+![Screenshot](https://raw.github.com/a2/PebbleBucks/master/screenshot.png)
 
 PebbleBucks 2.0
 ===============

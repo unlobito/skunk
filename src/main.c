@@ -1,280 +1,392 @@
 #include <pebble.h>
 
-#ifndef PEBBLE_HEIGHT
-    #define PEBBLE_HEIGHT 168
-#endif
+#include "a2_strdup.h"
+#include "card_layer.h"
+#include "defines.h"
+#include "error_window.h"
+#include "pager_layer.h"
+#include "pebble_app_info.h"
+#include "refresh_layer.h"
+#include "stats_layer.h"
 
-#ifndef PEBBLE_WIDTH
-    #define PEBBLE_WIDTH 144
-#endif
+extern const PebbleAppInfo __pbl_app_info;
 
-static BitmapLayer *reward_bitmap_layer;
-static BitmapLayer *star_bitmap_layer;
-
-static char *label_text[4] = { NULL, NULL, NULL, NULL };
-static const char *label_default_text[4] = { "0", "0", "$0", "" };
-static const char *updating_text = "Updating...";
-static const char *connection_error_text = "< ! > Error:\nNo Connection";
-
-static GBitmap *reward;
-static GBitmap *star;
-
-static Layer *barcode_layer;
-
-static TextLayer *starbucks_text_layer;
-static TextLayer *text_layers[4] = { NULL, NULL, NULL, NULL };
-
+static CardLayer *card_layer;
+static PagerLayer *pager_layer;
+static RefreshLayer *refresh_layer;
+static StatsLayer *stats_layer;
+static TextLayer *pebblebucks_layer;
 static Window *window;
 
-enum {
-    KEY_REWARDS = 0,
-    KEY_STARS   = 1,
-    KEY_BALANCE = 2,
-    KEY_STATUS  = 3,
-    KEY_BARCODE = 4
-};
+static bool updating = false;
+static uint8_t current_page = 0;
 
-#define reward_text_layer text_layers[KEY_REWARDS]
-#define star_text_layer text_layers[KEY_STARS]
-#define balance_text_layer text_layers[KEY_BALANCE]
-#define status_text_layer text_layers[KEY_STATUS]
+static AppTimer *finish_update_timer;
+static void finish_update_timer_callback(void *data);
 
-static char *a2_strdup(const char *str) {
-    size_t len = strlen(str) + 1;
-    char *dup = malloc(len);
-    dup[len] = '\0';
-    strcpy(dup, str);
-    return dup;
-}
+static void init(void);
+static void deinit(void);
+static void upgrade(void);
 
-static void free_text(int key) {
-    if (label_text[key]) {
-        free(label_text[key]);
-        label_text[key] = NULL;
-    }
-}
+static void window_load(Window *window);
+static void window_unload(Window *window);
+static void window_click_config_provider(void *context);
+static void window_down_click_handler(ClickRecognizerRef recognizer, void *context);
+static void window_up_click_handler(ClickRecognizerRef recognizer, void *context);
+static void window_select_click_handler(ClickRecognizerRef recognizer, void *context);
 
-static void set_text_from_dict(DictionaryIterator *iter, int key) {
-    Tuple *tuple = dict_find(iter, key);
-    if (!(tuple && tuple->type == TUPLE_CSTRING)) return;
+static void app_message_init(void);
+static void app_message_send_fetch_data(void);
+static void app_message_inbox_dropped(AppMessageResult reason, void *context);
+static void app_message_inbox_received(DictionaryIterator *iterator, void *context);
+static void app_message_outbox_failed(DictionaryIterator *iterator, AppMessageResult reason, void *context);
+static void app_message_outbox_sent(DictionaryIterator *iterator, void *context);
 
-    char *str = tuple->value->cstring;
-    persist_write_string(key, str);
+static void card_layer_init(void);
+static void card_layer_deinit(void);
 
-    free_text(key);
-    label_text[key] = a2_strdup(str);
-    text_layer_set_text(text_layers[key], label_text[key]);
-}
+static void pager_layer_init(void);
+static void pager_layer_deinit(void);
 
-static void load_text(int key, bool update_layer) {
-    free_text(key);
+static void pebblebucks_layer_init(void);
+static void pebblebucks_layer_deinit(void);
 
-    if (persist_exists(key)) {
-        int size = persist_get_size(key);
-        label_text[key] = malloc(size);
-        persist_read_string(key, label_text[key], size);
-    } else {
-        label_text[key] = a2_strdup(label_default_text[key]);
-    }
+static void refresh_layer_init(void);
+static void refresh_layer_deinit(void);
 
-    if (update_layer) {
-        text_layer_set_text(text_layers[key], label_text[key]);
-    }
-}
+static void stats_layer_init(void);
+static void stats_layer_deinit(void);
 
-static void in_received_handler(DictionaryIterator *iter, void *context) {
-    set_text_from_dict(iter, KEY_REWARDS);
-    set_text_from_dict(iter, KEY_STARS);
-    set_text_from_dict(iter, KEY_BALANCE);
-    set_text_from_dict(iter, KEY_STATUS);
-    
-    Tuple *barcode_tuple = dict_find(iter, KEY_BARCODE);
-    if (barcode_tuple) {
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "%s: barcode_tuple->length -> %d", __PRETTY_FUNCTION__, barcode_tuple->length);
-        int size = persist_write_data(KEY_BARCODE, barcode_tuple->value->data, barcode_tuple->length);
-        APP_LOG((size <= 0 ? APP_LOG_LEVEL_ERROR : APP_LOG_LEVEL_DEBUG), "%s: persist_write_data -> %d", __PRETTY_FUNCTION__, size);
-
-        layer_mark_dirty(barcode_layer);
-    }
-}
-
-static void out_failed_handler(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-    static const int key = KEY_STATUS;
-    free_text(key);
-
-    label_text[key] = a2_strdup(connection_error_text);
-    text_layer_set_text(text_layers[key], label_text[key]);
-}
-
-#define BARCODE_MIN_X (PEBBLE_WIDTH - 65)
-#define BARCODE_MAX_X (PEBBLE_WIDTH - 1)
-#define BARCODE_MIN_Y 1
-#define BARCODE_MAX_Y (PEBBLE_HEIGHT - 1)
-
-static void barcode_layer_update_proc(struct Layer *layer, GContext *ctx) {
-    if (!persist_exists(KEY_BARCODE)) return;
-
-    int size = persist_get_size(KEY_BARCODE);
-    APP_LOG((size <= 0 ? APP_LOG_LEVEL_ERROR : APP_LOG_LEVEL_DEBUG), "%s: persist_get_size -> %d", __PRETTY_FUNCTION__, size);
-    if (size <= 0) return;
-
-    uint8_t buffer[size];
-    size = persist_read_data(KEY_BARCODE, &buffer, size);
-    APP_LOG((size <= 0 ? APP_LOG_LEVEL_ERROR : APP_LOG_LEVEL_DEBUG), "%s: persist_read_data -> %d", __PRETTY_FUNCTION__, size);
-    if (size <= 0) return;
-
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    GRect draw_rect = GRect(
-        BARCODE_MIN_X - 1,
-        BARCODE_MIN_Y - 1,
-        ((BARCODE_MAX_X + 1) - (BARCODE_MIN_X - 1)),
-        ((BARCODE_MAX_Y + 1) - (BARCODE_MIN_Y - 1))
-    );
-    graphics_fill_rect(ctx, draw_rect, 0, GCornerNone);
-
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    int16_t rect_y = 0;
-    for (int16_t y = 0; y < size; y++) {
-        uint8_t column = buffer[y];
-
-        int16_t rect_h = (y == 0 || y == 14 || y == 28 || y == 43 || y == 57 || y == 71) ? 1 : 2;
-
-        for (int16_t x = 0; x < 8; x++) {
-            if (column & (1 << x)) {
-                GRect rect = GRect(BARCODE_MIN_X + 8 * x, BARCODE_MIN_Y + rect_y, 8, rect_h);
-                graphics_fill_rect(ctx, rect, 0, GCornerNone);
-            }
-        }
-
-        rect_y += rect_h;
-    }
-}
-
-static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-    text_layer_set_text(status_text_layer, updating_text);
-    app_message_outbox_send();
-}
-
-static void click_config_provider(void *context) {
-    window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
-}
-
-static void window_load(Window *window) {
-    starbucks_text_layer = text_layer_create(GRect(2, 0, 78, 26));
-    text_layer_set_font(starbucks_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-    text_layer_set_overflow_mode(starbucks_text_layer, GTextOverflowModeTrailingEllipsis);
-    text_layer_set_background_color(starbucks_text_layer, GColorClear);
-    text_layer_set_text_color(starbucks_text_layer, GColorWhite);
-    text_layer_set_text(starbucks_text_layer, "Starbucks");
-
-    reward_text_layer = text_layer_create(GRect(2, 96, 40, 30));
-    text_layer_set_font(reward_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-    text_layer_set_overflow_mode(reward_text_layer, GTextOverflowModeTrailingEllipsis);
-    text_layer_set_text_alignment(reward_text_layer, GTextAlignmentRight);
-    text_layer_set_background_color(reward_text_layer, GColorClear);
-    text_layer_set_text_color(reward_text_layer, GColorWhite);
-    text_layer_set_text(reward_text_layer, label_text[KEY_REWARDS]);
-
-    star_text_layer = text_layer_create(GRect(2, 130, 40, 30));
-    text_layer_set_font(star_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-    text_layer_set_overflow_mode(star_text_layer, GTextOverflowModeTrailingEllipsis);
-    text_layer_set_text_alignment(star_text_layer, GTextAlignmentRight);
-    text_layer_set_background_color(star_text_layer, GColorClear);
-    text_layer_set_text_color(star_text_layer, GColorWhite);
-    text_layer_set_text(star_text_layer, label_text[KEY_STARS]);
-
-    balance_text_layer = text_layer_create(GRect(2, 30, 74, 30));
-    text_layer_set_font(balance_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-    text_layer_set_overflow_mode(balance_text_layer, GTextOverflowModeTrailingEllipsis);
-    text_layer_set_background_color(balance_text_layer, GColorClear);
-    text_layer_set_text_color(balance_text_layer, GColorWhite);
-    text_layer_set_text(balance_text_layer, label_text[KEY_BALANCE]);
-
-    status_text_layer = text_layer_create(GRect(2, 60, 78, 30));
-    text_layer_set_font(status_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
-    text_layer_set_overflow_mode(status_text_layer, GTextOverflowModeWordWrap);
-    text_layer_set_background_color(status_text_layer, GColorClear);
-    text_layer_set_text_color(status_text_layer, GColorWhite);
-    text_layer_set_text(status_text_layer, label_text[KEY_STATUS]);
-
-    reward_bitmap_layer = bitmap_layer_create(GRect(44, 98, 30, 30));
-    bitmap_layer_set_compositing_mode(reward_bitmap_layer, GCompOpAssignInverted);
-    bitmap_layer_set_alignment(reward_bitmap_layer, GAlignCenter);
-    bitmap_layer_set_bitmap(reward_bitmap_layer, reward);
-
-    star_bitmap_layer = bitmap_layer_create(GRect(44, 133, 30, 30));
-    bitmap_layer_set_compositing_mode(star_bitmap_layer, GCompOpAssignInverted);
-    bitmap_layer_set_alignment(star_bitmap_layer, GAlignCenter);
-    bitmap_layer_set_bitmap(star_bitmap_layer, star);
-
-    barcode_layer = layer_create(GRect(0, 0, PEBBLE_WIDTH, PEBBLE_HEIGHT));
-    layer_set_update_proc(barcode_layer, barcode_layer_update_proc);
-
-    Layer *window_layer = window_get_root_layer(window);
-    layer_add_child(window_layer, text_layer_get_layer(starbucks_text_layer));
-    layer_add_child(window_layer, text_layer_get_layer(reward_text_layer));
-    layer_add_child(window_layer, text_layer_get_layer(star_text_layer));
-    layer_add_child(window_layer, text_layer_get_layer(balance_text_layer));
-    layer_add_child(window_layer, text_layer_get_layer(status_text_layer));
-    layer_add_child(window_layer, bitmap_layer_get_layer(reward_bitmap_layer));
-    layer_add_child(window_layer, bitmap_layer_get_layer(star_bitmap_layer));
-    layer_add_child(window_layer, barcode_layer);
-}
-
-static void window_unload(Window *window) {
-    text_layer_destroy(starbucks_text_layer);
-    text_layer_destroy(reward_text_layer);
-    text_layer_destroy(star_text_layer);
-    text_layer_destroy(balance_text_layer);
-    text_layer_destroy(status_text_layer);
-    bitmap_layer_destroy(reward_bitmap_layer);
-    bitmap_layer_destroy(star_bitmap_layer);
-    layer_destroy(barcode_layer);
-}
-
-static void app_message_init(void) {
-    app_message_register_outbox_failed(out_failed_handler);
-    app_message_register_inbox_received(in_received_handler);
-    app_message_open(app_message_inbox_size_maximum() /* size_inbound */, 2 /* size_outbound */);
-}
-
-static void init(void) {
-    reward = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_REWARD);
-    star = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_STAR);
-
-    load_text(KEY_BALANCE, false);
-    load_text(KEY_REWARDS, false);
-    load_text(KEY_STARS, false);
-    load_text(KEY_STATUS, false);
-
-    window = window_create();
-    window_set_fullscreen(window, true);
-    window_set_background_color(window, GColorBlack);
-    window_set_click_config_provider(window, click_config_provider);
-    window_set_window_handlers(window, (WindowHandlers) {
-        .load = window_load,
-        .unload = window_unload,
-    });
-
-    window_stack_push(window, true);
-
-    app_message_init();
-}
-
-static void deinit(void) {
-    gbitmap_destroy(reward);
-    gbitmap_destroy(star);
-
-    free_text(KEY_BALANCE);
-    free_text(KEY_REWARDS);
-    free_text(KEY_STARS);
-    free_text(KEY_STATUS);
-
-    window_destroy(window);
-}
+static void update_visible_layers(void);
 
 int main(void) {
     init();
     app_event_loop();
     deinit();
+}
+
+static void init(void) {
+    upgrade();
+
+    app_message_init();
+    error_window_init();
+    stats_layer_global_init();
+    refresh_layer_global_init();
+
+    window = window_create();
+    window_set_background_color(window, GColorBlack);
+    window_set_click_config_provider(window, window_click_config_provider);
+    window_set_fullscreen(window, true);
+
+    static const WindowHandlers window_handlers = {
+        .load = window_load,
+        .unload = window_unload,
+    };
+    window_set_window_handlers(window, window_handlers);
+    window_stack_push(window, true);
+}
+
+static void deinit(void) {
+    window_destroy(window);
+
+    error_window_deinit();
+    stats_layer_global_deinit();
+    refresh_layer_global_deinit();
+}
+
+static void upgrade(void) {
+    Version saved_version = { 0, 0 };
+    persist_read_data(STORAGE_APP_VERSION, &saved_version, sizeof(saved_version));
+
+    if (saved_version.major < 3) {
+        for (uint32_t i = 0; i < 5; i++) {
+            persist_delete(i);
+        }
+    }
+
+    Version current_version = __pbl_app_info.app_version;
+    persist_write_data(STORAGE_APP_VERSION, &current_version, sizeof(current_version));
+}
+
+static void window_load(Window *window) {
+    card_layer_init();
+    pager_layer_init();
+    pebblebucks_layer_init();
+    refresh_layer_init();
+    stats_layer_init();
+
+    update_visible_layers();
+}
+
+static void window_unload(Window *window) {
+    card_layer_deinit();
+    pager_layer_deinit();
+    pebblebucks_layer_deinit();
+    refresh_layer_deinit();
+    stats_layer_deinit();
+}
+
+static void window_click_config_provider(void *context) {
+    window_single_click_subscribe(BUTTON_ID_DOWN, window_down_click_handler);
+    window_single_click_subscribe(BUTTON_ID_UP, window_up_click_handler);
+    window_single_click_subscribe(BUTTON_ID_SELECT, window_select_click_handler);
+}
+
+static void window_down_click_handler(ClickRecognizerRef recognizer, void *context) {
+    if (updating) return;
+
+    uint8_t num_cards = 0;
+    persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
+
+    if (num_cards > 0 && current_page < num_cards) {
+        current_page++;
+        update_visible_layers();
+    }
+}
+
+static void window_up_click_handler(ClickRecognizerRef recognizer, void *context) {
+    if (updating) return;
+
+    if (current_page > 0) {
+        current_page--;
+        update_visible_layers();
+    }
+}
+
+static void window_select_click_handler(ClickRecognizerRef recognizer, void *context) {
+    if (updating) return;
+
+    app_message_send_fetch_data();
+}
+
+static void app_message_init(void) {
+    app_message_register_inbox_dropped(app_message_inbox_dropped);
+    app_message_register_inbox_received(app_message_inbox_received);
+    app_message_register_outbox_failed(app_message_outbox_failed);
+    app_message_register_outbox_sent(app_message_outbox_sent);
+    app_message_open(app_message_inbox_size_maximum(), 256);
+}
+
+static void app_message_inbox_dropped(AppMessageResult reason, void *context) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "%s <- 0x%X", __PRETTY_FUNCTION__, reason);
+}
+
+static void app_message_read_first_payload(DictionaryIterator *dict) {
+    Tuple *tuple = dict_read_first(dict);
+    if (!tuple) {
+        APP_LOG(APP_LOG_LEVEL_ERROR, "[MAIN] dict_read_first -> NULL");
+        return;
+    }
+
+    while (tuple) {
+        uint32_t int32_key = 0;
+        uint32_t time_key = 0;
+        switch (tuple->key) {
+            case KEY_NUMBER_OF_CARDS:
+                int32_key = STORAGE_NUMBER_OF_CARDS;
+                break;
+            case KEY_REWARDS_STARS:
+                int32_key = STORAGE_REWARDS_STARS;
+                break;
+            case KEY_REWARDS_DRINKS:
+                int32_key = STORAGE_REWARDS_DRINKS;
+                break;
+            case KEY_REWARDS_UPDATED_AT:
+                time_key = STORAGE_REWARDS_UPDATED_AT;
+                break;
+        }
+
+        if (int32_key) {
+            uint8_t value = tuple->value->int32;
+            persist_write_data(int32_key, &value, sizeof(value));
+        } else if (time_key) {
+            time_t value = tuple->value->int32;
+            persist_write_data(time_key, &value, sizeof(value));
+        }
+
+        tuple = dict_read_next(dict);
+    }
+
+    stats_layer_update(stats_layer);
+}
+
+static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card_index) {
+    Tuple *tuple = dict_read_first(dict);
+    if (!tuple) {
+        APP_LOG(APP_LOG_LEVEL_ERROR, "[CARD %ld] dict_read_first -> NULL", card_index);
+        return;
+    }
+
+    while (tuple) {
+        uint32_t cstr_key = 0;
+        uint32_t data_key = 0;
+        switch (tuple->key) {
+            case KEY_CARD_BALANCE:
+                cstr_key = STORAGE_CARD_VALUE(BALANCE, card_index);
+                break;
+            case KEY_CARD_BARCODE_DATA:
+                data_key = STORAGE_CARD_VALUE(BARCODE_DATA, card_index);
+                break;
+            case KEY_CARD_NAME:
+                cstr_key = STORAGE_CARD_VALUE(NAME, card_index);
+                break;
+        }
+
+        if (cstr_key) {
+            persist_write_string(cstr_key, tuple->value->cstring);
+        } else if (data_key) {
+            persist_write_data(data_key, tuple->value->data, tuple->length);
+        }
+
+        tuple = dict_read_next(dict);
+    }
+}
+
+static void app_message_inbox_received(DictionaryIterator *dict, void *context) {
+    Tuple *error_tpl = dict_find(dict, KEY_ERROR);
+    if (error_tpl) {
+        char *string = error_tpl->value->cstring;
+        APP_LOG(APP_LOG_LEVEL_ERROR, "%s <- \"%s\"", __PRETTY_FUNCTION__, string);
+        error_window_push(string);
+        return;
+    }
+
+    Tuple *card_index_tpl = dict_find(dict, KEY_CARD_INDEX);
+    if (card_index_tpl) {
+        int32_t card_index = card_index_tpl->value->int32;
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "%s <- CARD %ld", __PRETTY_FUNCTION__, card_index);
+        app_message_read_card_payload(dict, card_index);
+    } else {
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "%s <- MAIN", __PRETTY_FUNCTION__);
+        app_message_read_first_payload(dict);
+    }
+
+    if (finish_update_timer) app_timer_cancel(finish_update_timer);
+    finish_update_timer = app_timer_register(1000, finish_update_timer_callback, NULL);
+}
+
+static void app_message_outbox_failed(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "%s <- 0x%X", __PRETTY_FUNCTION__, reason);
+
+    if (!updating) return;
+    updating = false;
+    update_visible_layers();
+}
+
+static void app_message_outbox_sent(DictionaryIterator *iterator, void *context) {
+    finish_update_timer = app_timer_register(15 * 1000, finish_update_timer_callback, NULL);
+}
+
+static void app_message_send_fetch_data(void) {
+    updating = true;
+    update_visible_layers();
+
+    DictionaryIterator *dict;
+    app_message_outbox_begin(&dict);
+    dict_write_uint8(dict, KEY_FETCH_DATA, 1);
+    app_message_outbox_send();
+}
+
+static void card_layer_init(void) {
+    card_layer = card_layer_create(GRect(0, 34, 144, 106));
+    card_layer_set_index(card_layer, 0);
+
+    Layer *root_layer = window_get_root_layer(window);
+    layer_add_child(root_layer, card_layer_get_layer(card_layer));
+}
+
+static void card_layer_deinit(void) {
+    card_layer_destroy(card_layer);
+}
+
+static void pager_layer_init(void) {
+    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - 18, PEBBLE_WIDTH, 7));
+    pager_layer_set_values(pager_layer, 0, 1);
+
+    Layer *root_layer = window_get_root_layer(window);
+    layer_add_child(root_layer, pager_layer_get_layer(pager_layer));
+}
+
+static void pager_layer_deinit(void) {
+    pager_layer_destroy(pager_layer);
+}
+
+static void pebblebucks_layer_init(void) {
+    pebblebucks_layer = text_layer_create(GRect(4, -2, 136, 28));
+    text_layer_set_background_color(pebblebucks_layer, GColorBlack);
+    text_layer_set_font(pebblebucks_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+    text_layer_set_text(pebblebucks_layer, "PebbleBucks");
+    text_layer_set_text_alignment(pebblebucks_layer, GTextAlignmentCenter);
+    text_layer_set_text_color(pebblebucks_layer, GColorWhite);
+
+    Layer *root_layer = window_get_root_layer(window);
+    layer_add_child(root_layer, (Layer *)pebblebucks_layer);
+}
+
+static void pebblebucks_layer_deinit(void) {
+    text_layer_destroy(pebblebucks_layer);
+}
+
+static void refresh_layer_init(void) {
+    refresh_layer = refresh_layer_create(GRect(4, 70, 136, 46));
+
+    Layer *base_layer = refresh_layer_get_layer(refresh_layer);
+    layer_set_hidden(base_layer, true);
+
+    Layer *root_layer = window_get_root_layer(window);
+    layer_add_child(root_layer, base_layer);
+}
+
+static void refresh_layer_deinit(void) {
+    refresh_layer_destroy(refresh_layer);
+}
+
+static void stats_layer_init(void) {
+    stats_layer = stats_layer_create(GRect(4, 57, 136, 70));
+    stats_layer_update(stats_layer);
+
+    Layer *root_layer = window_get_root_layer(window);
+    layer_add_child(root_layer, stats_layer_get_layer(stats_layer));
+}
+
+static void stats_layer_deinit(void) {
+    stats_layer_destroy(stats_layer);
+}
+
+static void update_visible_layers(void) {
+    const bool refresh_layer_hidden = !updating && persist_exists(STORAGE_REWARDS_UPDATED_AT);
+    const bool cards_layer_hidden = updating || !refresh_layer_hidden || (current_page == 0);
+    const bool stats_layer_hidden = updating || !refresh_layer_hidden || !cards_layer_hidden;
+    const bool pager_layer_hidden = updating;
+
+    uint8_t num_cards = 0;
+    persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
+
+    if (current_page > num_cards) {
+        current_page = num_cards;
+    }
+
+    if (!cards_layer_hidden) {
+        card_layer_set_index(card_layer, current_page - 1);
+    }
+
+    if (!pager_layer_hidden) {
+        pager_layer_set_values(pager_layer, current_page, num_cards + 1);
+    }
+
+    refresh_layer_set_updating(refresh_layer, updating);
+
+    layer_set_hidden(refresh_layer_get_layer(refresh_layer), refresh_layer_hidden);
+    layer_set_hidden(card_layer_get_layer(card_layer), cards_layer_hidden);
+    layer_set_hidden(stats_layer_get_layer(stats_layer), stats_layer_hidden);
+    layer_set_hidden(pager_layer_get_layer(pager_layer), pager_layer_hidden);
+}
+
+static void finish_update_timer_callback(void *data) {
+    finish_update_timer = NULL;
+
+    if (updating) {
+        updating = false;
+        update_visible_layers();
+    }
 }

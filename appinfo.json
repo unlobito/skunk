@@ -3,8 +3,8 @@
   "shortName": "PebbleBucks",
   "longName": "PebbleBucks",
   "companyName": "Alexsander Akers",
-  "versionLabel": "3.0",
-  "versionCode": 3,
+  "versionLabel": "3.0.1",
+  "versionCode": 4,
   "watchapp": {
     "watchface": false
   },

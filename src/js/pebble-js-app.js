@@ -28,7 +28,7 @@ PebbleBucks.onShowConfiguration = function() {
 
 PebbleBucks.onWebViewClosed = function(event) {
   var response = event.response;
-  if (!response) return;
+  if (!response || response.indexOf('access_token') === -1) return;
 
   window.localStorage.credentials = decodeURIComponent(response);
 };
@@ -72,19 +72,20 @@ PebbleBucks.sendData = function(callback) {
 
   {
     var payload = { number_of_cards: cards.length };
-    Object.keys(rewards).forEach(function(key) {
+    for (var key in rewards) {
       payload["rewards_" + key] = rewards[key];
-    });
+    }
     payloads.push([payload, 'main']);
   }
 
-  cards.forEach(function(card, i) {
+  for (var i = 0; i < cards.length; i++) {
+    var card = cards[i];
     var payload = { card_index: i };
-    Object.keys(card).forEach(function(key) {
+    for (var key in card) {
       payload["card_" + key] = card[key];
-    });
+    }
     payloads.push([payload, 'card #' + i]);
-  });
+  }
 
   console.log("[sendData] Sending " + payloads.length + " payload(s)");
   PebbleBucks.sendPayloads(payloads, callback);
@@ -110,9 +111,9 @@ PebbleBucks.onAppMessage = function(event) {
 
 PebbleBucks.cleanOldKeys = function() {
   var keys = ['card_number', 'username', 'password'];
-  keys.forEach(function(key) {
-    window.localStorage.removeItem(key);
-  });
+  for (var i = 0; i < keys.length; i++) {
+    window.localStorage.removeItem(keys[i]);
+  }
 };
 
 PebbleBucks.sendError = function(message) {
@@ -154,6 +155,8 @@ PebbleBucks.fetchData = function(callback) {
     PebbleBucks.sendError('Request failure');
     callback(false);
   };
+
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
   console.log('[fetchData] Fetching data...');
   xhr.send(credentials);

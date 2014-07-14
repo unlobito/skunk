@@ -22,8 +22,14 @@ PebbleBucks.saveState = function() {
 };
 
 PebbleBucks.onShowConfiguration = function() {
-  var url = PebbleBucks.domain + '/login?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version;
-  Pebble.openURL(url);
+  var credentials = window.localStorage.credentials;
+  if (!credentials) {
+    var url = PebbleBucks.domain + '/login?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version;
+    Pebble.openURL(url);
+  } else {
+    var url = PebbleBucks.domain + '/settings?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version + "&" + credentials;
+    Pebble.openURL(url);
+  }
 };
 
 PebbleBucks.onWebViewClosed = function(event) {

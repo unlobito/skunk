@@ -27,7 +27,7 @@ PebbleBucks.onShowConfiguration = function() {
     var url = PebbleBucks.domain + '/login?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version;
     Pebble.openURL(url);
   } else {
-    credentialsbits = credentials.split("&");
+    var credentialsbits = credentials.split("&");
 
     var url = PebbleBucks.domain + '/settings?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version + "&access_token=" + encodeURIComponent(credentialsbits[0].substr(13)) + "&access_token_secret=" + encodeURIComponent(credentialsbits[1].substr(20));
     Pebble.openURL(url);

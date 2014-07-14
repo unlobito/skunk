@@ -21,15 +21,28 @@ PebbleBucks.saveState = function() {
   return true;
 };
 
-PebbleBucks.onShowConfiguration = function() {
+PebbleBucks.URLCredentials = function() {
   var credentials = window.localStorage.credentials;
+  if (!credentials) {
+    return false;
+  }
+
+  var credentialsbits = credentials.split("&");
+
+  var credentialsURLencoded = "access_token=" + encodeURIComponent(credentialsbits[0].substr(13)) + "&access_token_secret=" + encodeURIComponent(credentialsbits[1].substr(20));
+
+  return credentialsURLencoded;
+}
+
+PebbleBucks.onShowConfiguration = function() {
+  var credentials = PebbleBucks.URLCredentials();
   if (!credentials) {
     var url = PebbleBucks.domain + '/login?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version;
     Pebble.openURL(url);
   } else {
     var credentialsbits = credentials.split("&");
 
-    var url = PebbleBucks.domain + '/settings?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version + "&access_token=" + encodeURIComponent(credentialsbits[0].substr(13)) + "&access_token_secret=" + encodeURIComponent(credentialsbits[1].substr(20));
+    var url = PebbleBucks.domain + '/settings?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version + "&" + credentials;
     Pebble.openURL(url);
   }
 };
@@ -130,7 +143,7 @@ PebbleBucks.sendError = function(message) {
 };
 
 PebbleBucks.fetchData = function(callback) {
-  var credentials = window.localStorage.credentials;
+  var credentials = PebbleBucks.URLCredentials();
   if (!credentials) {
     console.log('[fetchData] No credentials.');
     PebbleBucks.sendError('Please log in.');

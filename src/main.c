@@ -5,11 +5,11 @@
 #include "defines.h"
 #include "error_window.h"
 #include "pager_layer.h"
-#include "pebble_app_info.h"
+#include "pebble_process_info.h"
 #include "refresh_layer.h"
 #include "stats_layer.h"
 
-extern const PebbleAppInfo __pbl_app_info;
+extern const PebbleProcessInfo __pbl_app_info;
 
 static CardLayer *card_layer;
 static PagerLayer *pager_layer;
@@ -104,7 +104,7 @@ static void upgrade(void) {
         }
     }
 
-    Version current_version = __pbl_app_info.app_version;
+    Version current_version = __pbl_app_info.process_version;
     persist_write_data(STORAGE_APP_VERSION, &current_version, sizeof(current_version));
 }
 

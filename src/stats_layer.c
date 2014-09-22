@@ -88,7 +88,7 @@ Layer *stats_layer_get_layer(StatsLayer *stats_layer) {
 
 static void stats_layer_set_text(TextLayer *text_layer, char **buffer_ptr, uint8_t value) {
 	char buffer[8];
-	snprintf(buffer, sizeof(buffer), "%hhu", value);
+	snprintf(buffer, sizeof(buffer), "%hu", value);
 
 	if (*buffer_ptr) free(*buffer_ptr);
 	*buffer_ptr = strdup(buffer);

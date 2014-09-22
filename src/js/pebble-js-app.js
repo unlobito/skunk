@@ -4,7 +4,7 @@ PebbleBucks.domain = 'https://pebblebucks.herokuapp.com';
 PebbleBucks.state = null;
 PebbleBucks.token = '';
 PebbleBucks.updating = false;
-PebbleBucks.version = encodeURIComponent('3.0');
+PebbleBucks.version = encodeURIComponent('3.1');
 
 PebbleBucks.loadState = function() {
   var state_json = window.localStorage.state;

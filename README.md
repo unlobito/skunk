@@ -1,6 +1,6 @@
 ![Screenshot](https://raw.github.com/a2/PebbleBucks/master/screenshot.gif)
 
-PebbleBucks 3.0
+PebbleBucks 3.1
 ===============
 
 PebbleBucks is an app for the [Pebble Smartwatch](https://getpebble.com) that allows easy access to your Starbucks account information and card barcodes.

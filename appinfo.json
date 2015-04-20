@@ -1,10 +1,10 @@
 {
-  "uuid": "7ff57cf2-bf8d-424c-bfd2-c64d8e886ae9",
-  "shortName": "PebbleBucks",
-  "longName": "PebbleBucks",
-  "companyName": "Alexsander Akers",
-  "versionLabel": "3.1",
-  "versionCode": 5,
+  "uuid": "1e420b43-63be-45f7-822c-2a7d57a55384",
+  "shortName": "Skunk",
+  "longName": "Skunk",
+  "companyName": "Henri Watson",
+  "versionLabel": "1.0",
+  "versionCode": 1,
   "watchapp": {
     "watchface": false
   },
@@ -12,18 +12,15 @@
     "fetch_data":          0,
 
     "number_of_cards":    10,
-    "rewards_stars":      11,
-    "rewards_drinks":     12,
     "rewards_updated_at": 13,
 
     "card_index":         20,
-    "card_balance":       21,
     "card_barcode_data":  22,
     "card_name":          23,
 
     "error":              99
   },
-  "capabilities": [ "configurable" ],
+  "capabilities": [  ],
   "resources": {
     "media": [
       {
@@ -31,16 +28,6 @@
         "type": "png",
         "name": "IMAGE_MENU_ICON",
         "file": "images/icon.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_REWARD",
-        "file": "images/reward.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_STAR",
-        "file": "images/star.png"
       },
       {
         "type": "png",

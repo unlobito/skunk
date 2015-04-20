@@ -1,6 +1,6 @@
 var PebbleBucks = {};
 
-PebbleBucks.domain = 'https://pebblebucks.herokuapp.com';
+PebbleBucks.domain = 'https://skunkapp.herokuapp.com';
 PebbleBucks.state = null;
 PebbleBucks.token = '';
 PebbleBucks.updating = false;
@@ -143,17 +143,9 @@ PebbleBucks.sendError = function(message) {
 };
 
 PebbleBucks.fetchData = function(callback) {
-  var credentials = PebbleBucks.URLCredentials();
-  if (!credentials) {
-    console.log('[fetchData] No credentials.');
-    PebbleBucks.sendError('Please log in.');
-    callback(false);
-    return;
-  }
-
   var xhr = new XMLHttpRequest();
 
-  var url = PebbleBucks.domain + '/data?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version;
+  var url = PebbleBucks.domain + '/data';
   xhr.open('POST', url, true);
   xhr.onreadystatechange = function() {
     if (xhr.readyState != 4) return;
@@ -180,7 +172,7 @@ PebbleBucks.fetchData = function(callback) {
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
   console.log('[fetchData] Fetching data...');
-  xhr.send(credentials);
+  xhr.send();
 };
 
 PebbleBucks.init = function() {

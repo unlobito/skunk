@@ -7,15 +7,12 @@
 #include "pager_layer.h"
 #include "pebble_process_info.h"
 #include "refresh_layer.h"
-#include "stats_layer.h"
 
 extern const PebbleProcessInfo __pbl_app_info;
 
 static CardLayer *card_layer;
 static PagerLayer *pager_layer;
 static RefreshLayer *refresh_layer;
-static StatsLayer *stats_layer;
-static TextLayer *pebblebucks_layer;
 static Window *window;
 
 static bool updating = false;
@@ -48,14 +45,8 @@ static void card_layer_deinit(void);
 static void pager_layer_init(void);
 static void pager_layer_deinit(void);
 
-static void pebblebucks_layer_init(void);
-static void pebblebucks_layer_deinit(void);
-
 static void refresh_layer_init(void);
 static void refresh_layer_deinit(void);
-
-static void stats_layer_init(void);
-static void stats_layer_deinit(void);
 
 static void update_visible_layers(void);
 
@@ -70,7 +61,6 @@ static void init(void) {
 
     app_message_init();
     error_window_init();
-    stats_layer_global_init();
     refresh_layer_global_init();
 
     window = window_create();
@@ -90,8 +80,9 @@ static void deinit(void) {
     window_destroy(window);
 
     error_window_deinit();
-    stats_layer_global_deinit();
     refresh_layer_global_deinit();
+
+    light_enable(false);
 }
 
 static void upgrade(void) {
@@ -111,9 +102,7 @@ static void upgrade(void) {
 static void window_load(Window *window) {
     card_layer_init();
     pager_layer_init();
-    pebblebucks_layer_init();
     refresh_layer_init();
-    stats_layer_init();
 
     update_visible_layers();
 }
@@ -121,9 +110,7 @@ static void window_load(Window *window) {
 static void window_unload(Window *window) {
     card_layer_deinit();
     pager_layer_deinit();
-    pebblebucks_layer_deinit();
     refresh_layer_deinit();
-    stats_layer_deinit();
 }
 
 static void window_click_config_provider(void *context) {
@@ -138,7 +125,7 @@ static void window_down_click_handler(ClickRecognizerRef recognizer, void *conte
     uint8_t num_cards = 0;
     persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
 
-    if (num_cards > 0 && current_page < num_cards) {
+    if (num_cards > 0 && current_page < num_cards - 1) {
         current_page++;
         update_visible_layers();
     }
@@ -185,12 +172,6 @@ static void app_message_read_first_payload(DictionaryIterator *dict) {
             case KEY_NUMBER_OF_CARDS:
                 int32_key = STORAGE_NUMBER_OF_CARDS;
                 break;
-            case KEY_REWARDS_STARS:
-                int32_key = STORAGE_REWARDS_STARS;
-                break;
-            case KEY_REWARDS_DRINKS:
-                int32_key = STORAGE_REWARDS_DRINKS;
-                break;
             case KEY_REWARDS_UPDATED_AT:
                 time_key = STORAGE_REWARDS_UPDATED_AT;
                 break;
@@ -206,8 +187,6 @@ static void app_message_read_first_payload(DictionaryIterator *dict) {
 
         tuple = dict_read_next(dict);
     }
-
-    stats_layer_update(stats_layer);
 }
 
 static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card_index) {
@@ -221,9 +200,6 @@ static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card
         uint32_t cstr_key = 0;
         uint32_t data_key = 0;
         switch (tuple->key) {
-            case KEY_CARD_BALANCE:
-                cstr_key = STORAGE_CARD_VALUE(BALANCE, card_index);
-                break;
             case KEY_CARD_BARCODE_DATA:
                 data_key = STORAGE_CARD_VALUE(BARCODE_DATA, card_index);
                 break;
@@ -288,7 +264,7 @@ static void app_message_send_fetch_data(void) {
 }
 
 static void card_layer_init(void) {
-    card_layer = card_layer_create(GRect(0, 34, 144, 106));
+    card_layer = card_layer_create(GRect(0, 0, 144, 140));
     card_layer_set_index(card_layer, 0);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -311,22 +287,6 @@ static void pager_layer_deinit(void) {
     pager_layer_destroy(pager_layer);
 }
 
-static void pebblebucks_layer_init(void) {
-    pebblebucks_layer = text_layer_create(GRect(4, -2, 136, 28));
-    text_layer_set_background_color(pebblebucks_layer, GColorBlack);
-    text_layer_set_font(pebblebucks_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-    text_layer_set_text(pebblebucks_layer, "PebbleBucks");
-    text_layer_set_text_alignment(pebblebucks_layer, GTextAlignmentCenter);
-    text_layer_set_text_color(pebblebucks_layer, GColorWhite);
-
-    Layer *root_layer = window_get_root_layer(window);
-    layer_add_child(root_layer, (Layer *)pebblebucks_layer);
-}
-
-static void pebblebucks_layer_deinit(void) {
-    text_layer_destroy(pebblebucks_layer);
-}
-
 static void refresh_layer_init(void) {
     refresh_layer = refresh_layer_create(GRect(4, 70, 136, 46));
 
@@ -341,44 +301,32 @@ static void refresh_layer_deinit(void) {
     refresh_layer_destroy(refresh_layer);
 }
 
-static void stats_layer_init(void) {
-    stats_layer = stats_layer_create(GRect(4, 57, 136, 70));
-    stats_layer_update(stats_layer);
-
-    Layer *root_layer = window_get_root_layer(window);
-    layer_add_child(root_layer, stats_layer_get_layer(stats_layer));
-}
-
-static void stats_layer_deinit(void) {
-    stats_layer_destroy(stats_layer);
-}
-
 static void update_visible_layers(void) {
-    const bool refresh_layer_hidden = !updating && persist_exists(STORAGE_REWARDS_UPDATED_AT);
-    const bool cards_layer_hidden = updating || !refresh_layer_hidden || (current_page == 0);
-    const bool stats_layer_hidden = updating || !refresh_layer_hidden || !cards_layer_hidden;
+    const bool refresh_layer_hidden = !updating && persist_exists(STORAGE_NUMBER_OF_CARDS) && persist_read_int(STORAGE_NUMBER_OF_CARDS) != 0;
+    const bool cards_layer_hidden = updating || !refresh_layer_hidden;
     const bool pager_layer_hidden = updating;
 
     uint8_t num_cards = 0;
     persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
 
-    if (current_page > num_cards) {
-        current_page = num_cards;
+    if (current_page > num_cards - 1) {
+        current_page = num_cards - 1;
     }
 
     if (!cards_layer_hidden) {
         card_layer_set_index(card_layer, current_page - 1);
     }
 
+    light_enable(!cards_layer_hidden);
+
     if (!pager_layer_hidden) {
-        pager_layer_set_values(pager_layer, current_page, num_cards + 1);
+        pager_layer_set_values(pager_layer, current_page, num_cards);
     }
 
     refresh_layer_set_updating(refresh_layer, updating);
 
     layer_set_hidden(refresh_layer_get_layer(refresh_layer), refresh_layer_hidden);
     layer_set_hidden(card_layer_get_layer(card_layer), cards_layer_hidden);
-    layer_set_hidden(stats_layer_get_layer(stats_layer), stats_layer_hidden);
     layer_set_hidden(pager_layer_get_layer(pager_layer), pager_layer_hidden);
 }
 

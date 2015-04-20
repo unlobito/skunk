@@ -1,21 +1,22 @@
 #include "a2_strdup.h"
 #include "card_layer.h"
 #include "defines.h"
+#include "tobinstr.h"
 
 #define BARCODE_SUB_BITMAP_COUNT 8
 
 struct CardLayer {
 	Layer *layer;
+	int barcode_height;
+	int barcode_width;
 	uint8_t *barcode_data;
 	GBitmap *barcode;
-	GBitmap *barcode_sub_bitmaps[BARCODE_SUB_BITMAP_COUNT];
 	char *balance_text;
 	TextLayer *balance_text_layer;
 	char *name_text;
 	TextLayer *name_text_layer;
 };
 
-static const GRect barcode_rect = {{1, 41}, {142, 64}};
 static void background_update_proc(Layer *layer, GContext* ctx);
 
 CardLayer *card_layer_create(GRect frame) {
@@ -27,7 +28,7 @@ CardLayer *card_layer_create(GRect frame) {
 	layer_set_update_proc(card_layer->layer, background_update_proc);
 	*(CardLayer **)layer_get_data(card_layer->layer) = card_layer;
 
-	card_layer->name_text_layer = text_layer_create(GRect(4, -2, 136, 22));
+	card_layer->name_text_layer = text_layer_create(GRect(0, 0, 144, 22));
 	text_layer_set_background_color(card_layer->name_text_layer, GColorBlack);
 	text_layer_set_font(card_layer->name_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
 	text_layer_set_overflow_mode(card_layer->name_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -35,23 +36,11 @@ CardLayer *card_layer_create(GRect frame) {
 	text_layer_set_text_color(card_layer->name_text_layer, GColorWhite);
 	layer_add_child(card_layer->layer, (Layer *)card_layer->name_text_layer);
 
-	card_layer->balance_text_layer = text_layer_create(GRect(4, 16, 136, 18));
-	text_layer_set_background_color(card_layer->balance_text_layer, GColorBlack);
-	text_layer_set_font(card_layer->balance_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
-	text_layer_set_text_alignment(card_layer->balance_text_layer, GTextAlignmentCenter);
-	text_layer_set_text_color(card_layer->balance_text_layer, GColorWhite);
-	layer_add_child(card_layer->layer, (Layer *)card_layer->balance_text_layer);
-
 	return card_layer;
 }
 
 void card_layer_destroy(CardLayer *card_layer) {
 	layer_destroy(card_layer->layer);
-	for (int8_t i = 0; i < BARCODE_SUB_BITMAP_COUNT; i++) {
-		if (card_layer->barcode_sub_bitmaps[i]) {
-			gbitmap_destroy(card_layer->barcode_sub_bitmaps[i]);
-		}
-	}
 	if (card_layer->barcode) gbitmap_destroy(card_layer->barcode);
 	if (card_layer->barcode_data) free(card_layer->barcode_data);
 	if (card_layer->balance_text) free(card_layer->balance_text);
@@ -66,48 +55,53 @@ Layer *card_layer_get_layer(CardLayer *card_layer) {
 }
 
 static void background_update_proc(Layer *layer, GContext* ctx) {
-	graphics_context_set_fill_color(ctx, GColorBlack);
-	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-
-	graphics_context_set_fill_color(ctx, GColorWhite);
-	graphics_fill_rect(ctx, grect_crop(barcode_rect, -1), 0, GCornerNone);
-
 	CardLayer *card_layer = *(CardLayer **)layer_get_data(layer);
 	if (!card_layer->barcode_data) return;
 
-	GRect rect = barcode_rect;
-	rect.size.h = 8;
-	for (int8_t i = 0; i < BARCODE_SUB_BITMAP_COUNT; i++) {
-		GBitmap *sub_bitmap = card_layer->barcode_sub_bitmaps[i];
-		graphics_draw_bitmap_in_rect(ctx, sub_bitmap, rect);
-		rect.origin.y += 8;
+	graphics_context_set_fill_color(ctx, GColorWhite);
+	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+
+	graphics_context_set_fill_color(ctx, GColorBlack);
+
+	int8_t raw_x, raw_y, point_x, point_y;
+	raw_x = 0;
+	raw_y = 0;
+
+	for (int8_t i = 2; i < (2 + card_layer->barcode_width * card_layer->barcode_height / 8 ); i++) {
+		char block[9];
+		tobinstr(card_layer->barcode_data[i], 8, block);
+
+		for (int8_t p = 7; p >= 0; p--) {
+			if (block[p] == 49) {
+				point_x = ( 72 - card_layer->barcode_width ) + raw_x * 2;
+				point_y = ( 84 - card_layer->barcode_height ) + raw_y * 2;
+
+				graphics_draw_pixel(ctx, GPoint(point_x, point_y));
+				graphics_draw_pixel(ctx, GPoint(point_x + 1, point_y));
+				graphics_draw_pixel(ctx, GPoint(point_x + 1, point_y + 1));
+				graphics_draw_pixel(ctx, GPoint(point_x, point_y + 1));
+			}
+
+			raw_x++;
+			if (raw_x == card_layer->barcode_width ) {
+				raw_x = 0;
+				raw_y++;
+			}
+		}
+
+		memset(block, 0, 9);
 	}
 }
 
 bool card_layer_set_index(CardLayer *card_layer, uint8_t index) {
+	index = index + 1;
+
 	uint8_t num_cards = 0;
 	persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
 	if (index >= num_cards) return false;
 
-	// BALANCE
-
-	if (card_layer->balance_text) free(card_layer->balance_text);
-
-	const uint32_t balance_key = STORAGE_CARD_VALUE(BALANCE, index);
-	char balance_buffer[32];
-	int balance_bytes_read = persist_read_string(balance_key, balance_buffer, sizeof(balance_buffer));
-	balance_buffer[MAX(0, balance_bytes_read)] = '\0';
-
-	card_layer->balance_text = strdup(balance_buffer);
-	text_layer_set_text(card_layer->balance_text_layer, card_layer->balance_text);
-
 	// BARCODE DATA
 
-	for (int8_t i = 0; i < BARCODE_SUB_BITMAP_COUNT; i++) {
-		if (card_layer->barcode_sub_bitmaps[i]) {
-			gbitmap_destroy(card_layer->barcode_sub_bitmaps[i]);
-		}
-	}
 	if (card_layer->barcode) gbitmap_destroy(card_layer->barcode);
 	if (card_layer->barcode_data) free(card_layer->barcode_data);
 
@@ -119,12 +113,8 @@ bool card_layer_set_index(CardLayer *card_layer, uint8_t index) {
 	GBitmap *barcode = gbitmap_create_with_data(card_layer->barcode_data);
 	card_layer->barcode = barcode;
 
-	GRect sub_rect = barcode->bounds;
-	sub_rect.size.h = 1;
-	for (int8_t i = 0; i < BARCODE_SUB_BITMAP_COUNT; i++) {
-		sub_rect.origin.y = i;
-		card_layer->barcode_sub_bitmaps[i] = gbitmap_create_as_sub_bitmap(barcode, sub_rect);
-	}
+	card_layer->barcode_width = card_layer->barcode_data[0];
+	card_layer->barcode_height = card_layer->barcode_data[1];
 
 	layer_mark_dirty(card_layer->layer);
 

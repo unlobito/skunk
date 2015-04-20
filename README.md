@@ -1,12 +1,8 @@
-![Screenshot](https://raw.github.com/a2/PebbleBucks/master/screenshot.gif)
+![Screenshot](screenshot.png)
 
-PebbleBucks 3.1
+Skunk
 ===============
 
-PebbleBucks is an app for the [Pebble Smartwatch](https://getpebble.com) that allows easy access to your Starbucks account information and card barcodes.
+Skunk is an app for the [Pebble Smartwatch](https://getpebble.com) that allows easy access to your store cards and other barcodes.
 
-Based on [PebbleBucks 2.0 by Neal](https://github.com/Neal/PebbleBucks) and the [original PebbleBucks by Matt Donders](https://github.com/mattdonders/PebbleBucks).
-
-## Security
-
-PebbleBucks uses the Starbucks [OAuth API](http://oauth.net). Your access token and secret are sent securely to a Heroku server that communicates directly with Starbucks. The source is available in the `heroku` branch.
+Based on [PebbleBucks 3.0 by a2](https://github.com/a2/PebbleBucks), [PebbleBucks 2.0 by Neal](https://github.com/Neal/PebbleBucks), and the [original PebbleBucks by Matt Donders](https://github.com/mattdonders/PebbleBucks).

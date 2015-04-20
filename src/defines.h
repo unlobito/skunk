@@ -12,8 +12,6 @@ enum {
     KEY_FETCH_DATA         =  0,
 
     KEY_NUMBER_OF_CARDS    = 10,
-    KEY_REWARDS_STARS      = 11,
-    KEY_REWARDS_DRINKS     = 12,
     KEY_REWARDS_UPDATED_AT = 13,
 
     KEY_CARD_INDEX         = 20,
@@ -28,11 +26,8 @@ enum {
     STORAGE_APP_VERSION               = 10, // Version
 
     STORAGE_NUMBER_OF_CARDS           = 11, // uint8_t
-    STORAGE_REWARDS_STARS             = 12, // uint8_t
-    STORAGE_REWARDS_DRINKS            = 13, // uint8_t
     STORAGE_REWARDS_UPDATED_AT        = 14, // time_t
 
-    STORAGE_CARD_BALANCE_OFFSET       = 0, // char[]
     STORAGE_CARD_BARCODE_DATA_OFFSET  = 1, // uint8_t[]
     STORAGE_CARD_NAME_OFFSET          = 2, // char[]
 };

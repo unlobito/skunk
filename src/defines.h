@@ -4,6 +4,9 @@
 #define PEBBLE_WIDTH 144
 #define STATUS_HEIGHT 16
 
+#define IMG_HEADER_OFFSET 3
+#define IMG_BIT_SIZE 8
+
 #define ABS(A) ((A) < 0 ? -(A) : (A))
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
@@ -31,5 +34,11 @@ enum {
     STORAGE_CARD_BARCODE_DATA_OFFSET  = 1, // uint8_t[]
     STORAGE_CARD_NAME_OFFSET          = 2, // char[]
 };
+
+enum {
+    BARCODE_MATRIX                     = 0,
+    BARCODE_LINEAR                     = 1,
+};
+
 
 #define STORAGE_CARD_VALUE(NAME, INDEX) (20 + 10 * (INDEX) + (STORAGE_CARD_ ## NAME ## _OFFSET))

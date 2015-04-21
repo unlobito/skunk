@@ -54,25 +54,29 @@ Layer *card_layer_get_layer(CardLayer *card_layer) {
     return card_layer->layer;
 }
 
-static void background_update_proc(Layer *layer, GContext* ctx) {
-    CardLayer *card_layer = *(CardLayer **)layer_get_data(layer);
-    if (!card_layer->barcode_data) return;
-
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-
-    graphics_context_set_fill_color(ctx, GColorBlack);
-
+static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
+    char block[9];
     int8_t raw_x, raw_y, point_x, point_y;
     raw_x = 0;
     raw_y = 0;
 
-    for (int8_t i = 2; i < (2 + card_layer->barcode_width * card_layer->barcode_height / 8 ); i++) {
-        char block[9];
-        tobinstr(card_layer->barcode_data[i], 8, block);
+    int8_t img_pixels = card_layer->barcode_width * card_layer->barcode_height;
+
+    // The comparison part of this loop adds 7 to the barcode width to allow C
+    // to ceil the byte count. Since the server will always pad incomplete bytes
+    // with 0, this is reasonably safe.
+    for (
+          int8_t current_byte = IMG_HEADER_OFFSET;
+          current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
+          current_byte++
+        ) {
+
+        tobinstr(card_layer->barcode_data[current_byte], 8, block);
 
         for (int8_t p = 7; p >= 0; p--) {
             if (block[p] == 49) {
+                // Non-linear barcodes are scaled 2x to save persistent storage space.
+
                 point_x = ( 72 - card_layer->barcode_width ) + raw_x * 2;
                 point_y = ( 84 - card_layer->barcode_height ) + raw_y * 2;
 
@@ -90,6 +94,62 @@ static void background_update_proc(Layer *layer, GContext* ctx) {
         }
 
         memset(block, 0, 9);
+    }
+}
+
+static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
+    char block[9];
+    int8_t raw_x, point_x, point_y;
+
+    raw_x = 0;
+
+    int8_t img_pixels = card_layer->barcode_width;
+
+    // The comparison part of this loop adds 7 to the barcode width to allow C
+    // to ceil the byte count. Since the server will always pad incomplete bytes
+    // with 0, this is reasonably safe.
+    for (
+          int8_t current_byte = IMG_HEADER_OFFSET;
+          current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
+          current_byte++
+        ) {
+
+        tobinstr(card_layer->barcode_data[current_byte], 8, block);
+
+        for (int8_t current_pixel = 7; current_pixel >= 0; current_pixel--) {
+            if (block[current_pixel] == 49) {
+                for (int8_t current_vertical = 0; current_vertical < card_layer->barcode_height; current_vertical++) {
+                    point_x = ( PEBBLE_WIDTH / 2 - card_layer->barcode_width / 2 ) + raw_x;
+                    point_y = ( PEBBLE_HEIGHT / 2 - card_layer->barcode_height / 2 ) + current_vertical;
+
+                    graphics_draw_pixel(ctx, GPoint(point_x, point_y));
+                }
+            }
+
+            raw_x++;
+        }
+
+        memset(block, 0, 9);
+    }
+}
+
+static void background_update_proc(Layer *layer, GContext* ctx) {
+    CardLayer *card_layer = *(CardLayer **)layer_get_data(layer);
+    if (!card_layer->barcode_data) return;
+
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+
+    graphics_context_set_fill_color(ctx, GColorBlack);
+
+    // 0x00 defines the image type
+    switch (card_layer->barcode_data[0]) {
+        case BARCODE_MATRIX:
+            draw_barcode_matrix(card_layer, ctx);
+            break;
+        case BARCODE_LINEAR:
+            draw_barcode_linear(card_layer, ctx);
+            break;
     }
 }
 
@@ -113,8 +173,8 @@ bool card_layer_set_index(CardLayer *card_layer, uint8_t index) {
     GBitmap *barcode = gbitmap_create_with_data(card_layer->barcode_data);
     card_layer->barcode = barcode;
 
-    card_layer->barcode_width = card_layer->barcode_data[0];
-    card_layer->barcode_height = card_layer->barcode_data[1];
+    card_layer->barcode_width = card_layer->barcode_data[1];
+    card_layer->barcode_height = card_layer->barcode_data[2];
 
     layer_mark_dirty(card_layer->layer);
 

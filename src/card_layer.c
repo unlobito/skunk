@@ -56,17 +56,17 @@ Layer *card_layer_get_layer(CardLayer *card_layer) {
 
 static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
     char block[9];
-    int8_t raw_x, raw_y, point_x, point_y;
+    int16_t raw_x, raw_y, point_x, point_y;
     raw_x = 0;
     raw_y = 0;
 
-    int8_t img_pixels = card_layer->barcode_width * card_layer->barcode_height;
+    int16_t img_pixels = card_layer->barcode_width * card_layer->barcode_height;
 
     // The comparison part of this loop adds 7 to the barcode width to allow C
     // to ceil the byte count. Since the server will always pad incomplete bytes
     // with 0, this is reasonably safe.
     for (
-          int8_t current_byte = IMG_HEADER_OFFSET;
+          int16_t current_byte = IMG_HEADER_OFFSET;
           current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
           current_byte++
         ) {
@@ -99,26 +99,26 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
 
 static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
     char block[9];
-    int8_t raw_x, point_x, point_y;
+    int16_t raw_x, point_x, point_y;
 
     raw_x = 0;
 
-    int8_t img_pixels = card_layer->barcode_width;
+    int16_t img_pixels = card_layer->barcode_width;
 
     // The comparison part of this loop adds 7 to the barcode width to allow C
     // to ceil the byte count. Since the server will always pad incomplete bytes
     // with 0, this is reasonably safe.
     for (
-          int8_t current_byte = IMG_HEADER_OFFSET;
+          int16_t current_byte = IMG_HEADER_OFFSET;
           current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
           current_byte++
         ) {
 
         tobinstr(card_layer->barcode_data[current_byte], 8, block);
 
-        for (int8_t current_pixel = 7; current_pixel >= 0; current_pixel--) {
+        for (int16_t current_pixel = 7; current_pixel >= 0; current_pixel--) {
             if (block[current_pixel] == 49) {
-                for (int8_t current_vertical = 0; current_vertical < card_layer->barcode_height; current_vertical++) {
+                for (int16_t current_vertical = 0; current_vertical < card_layer->barcode_height; current_vertical++) {
                     point_x = ( PEBBLE_WIDTH / 2 - card_layer->barcode_width / 2 ) + raw_x;
                     point_y = ( PEBBLE_HEIGHT / 2 - card_layer->barcode_height / 2 ) + current_vertical;
 

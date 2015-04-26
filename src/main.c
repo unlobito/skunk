@@ -211,6 +211,9 @@ static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card
             case KEY_CARD_NAME:
                 cstr_key = STORAGE_CARD_VALUE(NAME, card_index);
                 break;
+            case KEY_CARD_VALUE:
+                cstr_key = STORAGE_CARD_VALUE(VALUE, card_index);
+                break;
         }
 
         if (cstr_key) {

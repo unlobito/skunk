@@ -19,7 +19,7 @@ enum {
     KEY_REWARDS_UPDATED_AT = 13,
 
     KEY_CARD_INDEX         = 20,
-    KEY_CARD_BALANCE       = 21,
+    KEY_CARD_VALUE         = 21,
     KEY_CARD_BARCODE_DATA  = 22,
     KEY_CARD_NAME          = 23,
 
@@ -32,6 +32,7 @@ enum {
     STORAGE_NUMBER_OF_CARDS           = 11, // uint8_t
     STORAGE_REWARDS_UPDATED_AT        = 14, // time_t
 
+    STORAGE_CARD_VALUE_OFFSET         = 0, // char[]
     STORAGE_CARD_BARCODE_DATA_OFFSET  = 1, // uint8_t[]
     STORAGE_CARD_NAME_OFFSET          = 2, // char[]
 };

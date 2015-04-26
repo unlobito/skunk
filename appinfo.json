@@ -16,6 +16,7 @@
     "rewards_updated_at": 13,
 
     "card_index":         20,
+    "card_value":         21,
     "card_barcode_data":  22,
     "card_name":          23,
 

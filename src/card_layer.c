@@ -11,8 +11,8 @@ struct CardLayer {
     int barcode_width;
     uint8_t *barcode_data;
     GBitmap *barcode;
-    char *balance_text;
-    TextLayer *balance_text_layer;
+    char *value_text;
+    TextLayer *value_text_layer;
     char *name_text;
     TextLayer *name_text_layer;
 };
@@ -36,6 +36,15 @@ CardLayer *card_layer_create(GRect frame) {
     text_layer_set_text_color(card_layer->name_text_layer, GColorWhite);
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_text_layer);
 
+
+    card_layer->value_text_layer = text_layer_create(GRect(0, 115, 144, 22));
+    text_layer_set_background_color(card_layer->value_text_layer, GColorWhite);
+    text_layer_set_font(card_layer->value_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+    text_layer_set_overflow_mode(card_layer->value_text_layer, GTextOverflowModeTrailingEllipsis);
+    text_layer_set_text_alignment(card_layer->value_text_layer, GTextAlignmentCenter);
+    text_layer_set_text_color(card_layer->value_text_layer, GColorBlack);
+    layer_add_child(card_layer->layer, (Layer *)card_layer->value_text_layer);
+
     return card_layer;
 }
 
@@ -43,10 +52,10 @@ void card_layer_destroy(CardLayer *card_layer) {
     layer_destroy(card_layer->layer);
     if (card_layer->barcode) gbitmap_destroy(card_layer->barcode);
     if (card_layer->barcode_data) free(card_layer->barcode_data);
-    if (card_layer->balance_text) free(card_layer->balance_text);
-    text_layer_destroy(card_layer->balance_text_layer);
     if (card_layer->name_text) free(card_layer->name_text);
     text_layer_destroy(card_layer->name_text_layer);
+    if (card_layer->value_text) free(card_layer->value_text);
+    text_layer_destroy(card_layer->value_text_layer);
     free(card_layer);
 }
 
@@ -189,6 +198,23 @@ bool card_layer_set_index(CardLayer *card_layer, uint8_t index) {
 
     card_layer->name_text = strdup(name_buffer);
     text_layer_set_text(card_layer->name_text_layer, card_layer->name_text);
+
+    // VALUE
+    if (card_layer->barcode_data[0] == BARCODE_LINEAR) {
+      layer_set_hidden((Layer *)card_layer->value_text_layer, false);
+
+      if (card_layer->value_text) free(card_layer->value_text);
+
+      const uint32_t value_key = STORAGE_CARD_VALUE(VALUE, index);
+      char value_buffer[32];
+      int value_bytes_read = persist_read_string(value_key, value_buffer, sizeof(value_buffer));
+      value_buffer[MAX(0, value_bytes_read)] = '\0';
+
+      card_layer->value_text = strdup(value_buffer);
+      text_layer_set_text(card_layer->value_text_layer, card_layer->value_text);
+    } else {
+      layer_set_hidden((Layer *)card_layer->value_text_layer, true);
+    }
 
     return true;
 }

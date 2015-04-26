@@ -140,8 +140,15 @@ static void window_up_click_handler(ClickRecognizerRef recognizer, void *context
     }
 }
 
+static void disable_force_light(void *data) {
+    light_enable(false);
+}
+
 static void window_select_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (updating) return;
+
+    light_enable(true);
+    app_timer_register(30000, disable_force_light, NULL);
 }
 
 static void app_message_init(void) {
@@ -321,8 +328,6 @@ static void update_visible_layers(void) {
     if (!cards_layer_hidden) {
         card_layer_set_index(card_layer, current_page - 1);
     }
-
-    light_enable(!cards_layer_hidden);
 
     if (!pager_layer_hidden) {
         pager_layer_set_values(pager_layer, current_page, num_cards);

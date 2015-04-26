@@ -1,36 +1,36 @@
-var PebbleBucks = {};
+var Skunk = {};
 
-PebbleBucks.domain = 'https://skunkapp.herokuapp.com';
-PebbleBucks.state = null;
-PebbleBucks.token = '';
-PebbleBucks.updating = false;
-PebbleBucks.version = encodeURIComponent('1.0');
+Skunk.domain = 'https://skunkapp.herokuapp.com';
+Skunk.state = null;
+Skunk.token = '';
+Skunk.updating = false;
+Skunk.version = encodeURIComponent('1.0');
 
-PebbleBucks.loadState = function() {
+Skunk.loadState = function() {
   var state_json = window.localStorage.state;
   if (!state_json) return false;
 
-  PebbleBucks.state = JSON.parse(state_json);
+  Skunk.state = JSON.parse(state_json);
   return true;
 };
 
-PebbleBucks.saveState = function() {
-  if (!PebbleBucks.state) return false;
+Skunk.saveState = function() {
+  if (!Skunk.state) return false;
 
-  window.localStorage.state = JSON.stringify(PebbleBucks.state);
+  window.localStorage.state = JSON.stringify(Skunk.state);
   return true;
 };
 
-PebbleBucks.onShowConfiguration = function() {
+Skunk.onShowConfiguration = function() {
   if (!window.localStorage.config || window.localStorage.config == "") {
-    var url = PebbleBucks.domain + '/settings';
+    var url = Skunk.domain + '/settings';
   } else {
-    var url = PebbleBucks.domain + '/settings#' + encodeURIComponent(window.localStorage.config);
+    var url = Skunk.domain + '/settings#' + encodeURIComponent(window.localStorage.config);
   }
   Pebble.openURL(url);
 };
 
-PebbleBucks.onWebViewClosed = function(event) {
+Skunk.onWebViewClosed = function(event) {
   var response = event.response;
   if (!response || decodeURIComponent(response).indexOf('{') === -1) return;
 
@@ -39,7 +39,7 @@ PebbleBucks.onWebViewClosed = function(event) {
   Pebble.sendAppMessage({pushing_data: true});
 };
 
-PebbleBucks.sendPayload = function(payload, name, callback) {
+Skunk.sendPayload = function(payload, name, callback) {
   var pid = -1;
   var log = function(success) {
     return function() {
@@ -51,7 +51,7 @@ PebbleBucks.sendPayload = function(payload, name, callback) {
   return pid;
 };
 
-PebbleBucks.sendPayloads = function(payloads, callback, i) {
+Skunk.sendPayloads = function(payloads, callback, i) {
   i = i || 0;
   if (i >= payloads.length) {
     callback();
@@ -59,18 +59,18 @@ PebbleBucks.sendPayloads = function(payloads, callback, i) {
   }
 
   var tuple = payloads[i];
-  PebbleBucks.sendPayload(tuple[0], tuple[1], function(success) {
-    PebbleBucks.sendPayloads(payloads, callback, i + 1);
+  Skunk.sendPayload(tuple[0], tuple[1], function(success) {
+    Skunk.sendPayloads(payloads, callback, i + 1);
   });
 };
 
-PebbleBucks.sendData = function(callback) {
-  if (!PebbleBucks.state && !PebbleBucks.loadState()) {
+Skunk.sendData = function(callback) {
+  if (!Skunk.state && !Skunk.loadState()) {
     console.log("[sendData] Couldn't load state!");
     return false;
   }
 
-  var data = PebbleBucks.state.data;
+  var data = Skunk.state.data;
   var cards = data.cards;
 
   var payloads = [];
@@ -90,20 +90,20 @@ PebbleBucks.sendData = function(callback) {
   }
 
   console.log("[sendData] Sending " + payloads.length + " payload(s)");
-  PebbleBucks.sendPayloads(payloads, callback);
+  Skunk.sendPayloads(payloads, callback);
 };
 
-PebbleBucks.onAppMessage = function(event) {
+Skunk.onAppMessage = function(event) {
   var payload = event.payload;
-  if (payload.fetch_data && !PebbleBucks.updating) {
-    PebbleBucks.updating = true;
-    PebbleBucks.fetchData(function(success) {
+  if (payload.fetch_data && !Skunk.updating) {
+    Skunk.updating = true;
+    Skunk.fetchData(function(success) {
       var done = function() {
-        PebbleBucks.updating = false;
+        Skunk.updating = false;
       };
 
       if (success) {
-        PebbleBucks.sendData(done);
+        Skunk.sendData(done);
       } else {
         done();
       }
@@ -111,42 +111,42 @@ PebbleBucks.onAppMessage = function(event) {
   }
 };
 
-PebbleBucks.sendError = function(message) {
+Skunk.sendError = function(message) {
   console.log('[sendError] ' + message);
-  PebbleBucks.sendPayload({ error: message }, 'error');
+  Skunk.sendPayload({ error: message }, 'error');
 };
 
-PebbleBucks.fetchData = function(callback) {
+Skunk.fetchData = function(callback) {
   if (!window.localStorage.config || window.localStorage.config == "") {
     console.log('[fetchData] No state.');
-    PebbleBucks.sendError('Please open Settings.');
+    Skunk.sendError('Please open Settings.');
     callback(false);
     return;
   }
 
   var xhr = new XMLHttpRequest();
 
-  var url = PebbleBucks.domain + '/data';
+  var url = Skunk.domain + '/data';
   xhr.open('POST', url, true);
   xhr.onreadystatechange = function() {
     if (xhr.readyState != 4) return;
 
     if (xhr.status < 400) {
       // 2xx or 3xx
-      if (!PebbleBucks.state) PebbleBucks.state = {};
-      PebbleBucks.state.data = JSON.parse(xhr.responseText);
-      PebbleBucks.state.updated_at = Date.now();
-      PebbleBucks.saveState();
+      if (!Skunk.state) Skunk.state = {};
+      Skunk.state.data = JSON.parse(xhr.responseText);
+      Skunk.state.updated_at = Date.now();
+      Skunk.saveState();
       callback(true);
     } else {
       var error = (xhr.status == 401) ? 'Please log in' : 'HTTP ' + xhr.status;
-      PebbleBucks.sendError(error);
+      Skunk.sendError(error);
       callback(false);
     }
   };
   xhr.onerror = function() {
     console.log('Error: ' + xhr.statusText);
-    PebbleBucks.sendError('Request failure');
+    Skunk.sendError('Request failure');
     callback(false);
   };
 
@@ -156,13 +156,13 @@ PebbleBucks.fetchData = function(callback) {
   xhr.send(window.localStorage.config);
 };
 
-PebbleBucks.init = function() {
-  PebbleBucks.token = encodeURIComponent(Pebble.getAccountToken());
+Skunk.init = function() {
+  Skunk.token = encodeURIComponent(Pebble.getAccountToken());
 
-  Pebble.addEventListener('showConfiguration', PebbleBucks.onShowConfiguration);
-  Pebble.addEventListener('webviewclosed', PebbleBucks.onWebViewClosed);
-  Pebble.addEventListener('appmessage', PebbleBucks.onAppMessage);
+  Pebble.addEventListener('showConfiguration', Skunk.onShowConfiguration);
+  Pebble.addEventListener('webviewclosed', Skunk.onWebViewClosed);
+  Pebble.addEventListener('appmessage', Skunk.onAppMessage);
 };
 
 
-Pebble.addEventListener('ready', PebbleBucks.init);
+Pebble.addEventListener('ready', Skunk.init);

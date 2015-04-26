@@ -1,3 +1,5 @@
+[![Pebble App Store](http://pblweb.com/badge/553aaf29bf1a5965020000c8/black/small.png)](https://apps.getpebble.com/applications/553aaf29bf1a5965020000c8)
+
 ![Screenshot](screenshot.png)
 
 Skunk

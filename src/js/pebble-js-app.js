@@ -37,19 +37,6 @@ PebbleBucks.onWebViewClosed = function(event) {
   window.localStorage.config = decodeURIComponent(response);
 
   Pebble.sendAppMessage({pushing_data: true});
-
-  PebbleBucks.updating = true;
-  PebbleBucks.fetchData(function(success) {
-    var done = function() {
-      PebbleBucks.updating = false;
-    };
-
-    if (success) {
-      PebbleBucks.sendData(done);
-    } else {
-      done();
-    }
-  });
 };
 
 PebbleBucks.sendPayload = function(payload, name, callback) {

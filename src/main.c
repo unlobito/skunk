@@ -226,8 +226,7 @@ static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card
 static void app_message_inbox_received(DictionaryIterator *dict, void *context) {
     Tuple *pushing_data = dict_find(dict, KEY_PUSHING_DATA);
     if (pushing_data) {
-        updating = true;
-        update_visible_layers();
+        app_message_send_fetch_data();
         return;
     }
 

@@ -13,6 +13,7 @@
 
 enum {
     KEY_FETCH_DATA         =  0,
+    KEY_PUSHING_DATA       =  1,
 
     KEY_NUMBER_OF_CARDS    = 10,
     KEY_REWARDS_UPDATED_AT = 13,

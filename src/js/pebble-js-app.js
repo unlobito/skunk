@@ -4,7 +4,7 @@ PebbleBucks.domain = 'https://skunkapp.herokuapp.com';
 PebbleBucks.state = null;
 PebbleBucks.token = '';
 PebbleBucks.updating = false;
-PebbleBucks.version = encodeURIComponent('3.1');
+PebbleBucks.version = encodeURIComponent('1.0');
 
 PebbleBucks.loadState = function() {
   var state_json = window.localStorage.state;
@@ -21,37 +21,35 @@ PebbleBucks.saveState = function() {
   return true;
 };
 
-PebbleBucks.URLCredentials = function() {
-  var credentials = window.localStorage.credentials;
-  if (!credentials) {
-    return false;
-  }
-
-  var credentialsbits = credentials.split("&");
-
-  var credentialsURLencoded = "access_token=" + encodeURIComponent(credentialsbits[0].substr(13)) + "&access_token_secret=" + encodeURIComponent(credentialsbits[1].substr(20));
-
-  return credentialsURLencoded;
-}
-
 PebbleBucks.onShowConfiguration = function() {
-  var credentials = PebbleBucks.URLCredentials();
-  if (!credentials) {
-    var url = PebbleBucks.domain + '/login?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version;
-    Pebble.openURL(url);
+  if (!window.localStorage.config || window.localStorage.config == "") {
+    var url = PebbleBucks.domain + '/settings';
   } else {
-    var credentialsbits = credentials.split("&");
-
-    var url = PebbleBucks.domain + '/settings?pebble=' + PebbleBucks.token + '&version=' + PebbleBucks.version + "&" + credentials;
-    Pebble.openURL(url);
+    var url = PebbleBucks.domain + '/settings#' + encodeURIComponent(window.localStorage.config);
   }
+  Pebble.openURL(url);
 };
 
 PebbleBucks.onWebViewClosed = function(event) {
   var response = event.response;
-  if (!response || response.indexOf('access_token') === -1) return;
+  if (!response || decodeURIComponent(response).indexOf('{') === -1) return;
 
-  window.localStorage.credentials = decodeURIComponent(response);
+  window.localStorage.config = decodeURIComponent(response);
+
+  Pebble.sendAppMessage({pushing_data: true});
+
+  PebbleBucks.updating = true;
+  PebbleBucks.fetchData(function(success) {
+    var done = function() {
+      PebbleBucks.updating = false;
+    };
+
+    if (success) {
+      PebbleBucks.sendData(done);
+    } else {
+      done();
+    }
+  });
 };
 
 PebbleBucks.sendPayload = function(payload, name, callback) {
@@ -87,15 +85,11 @@ PebbleBucks.sendData = function(callback) {
 
   var data = PebbleBucks.state.data;
   var cards = data.cards;
-  var rewards = data.rewards;
 
   var payloads = [];
 
   {
     var payload = { number_of_cards: cards.length };
-    for (var key in rewards) {
-      payload["rewards_" + key] = rewards[key];
-    }
     payloads.push([payload, 'main']);
   }
 
@@ -130,19 +124,19 @@ PebbleBucks.onAppMessage = function(event) {
   }
 };
 
-PebbleBucks.cleanOldKeys = function() {
-  var keys = ['card_number', 'username', 'password'];
-  for (var i = 0; i < keys.length; i++) {
-    window.localStorage.removeItem(keys[i]);
-  }
-};
-
 PebbleBucks.sendError = function(message) {
   console.log('[sendError] ' + message);
   PebbleBucks.sendPayload({ error: message }, 'error');
 };
 
 PebbleBucks.fetchData = function(callback) {
+  if (!window.localStorage.config || window.localStorage.config == "") {
+    console.log('[fetchData] No state.');
+    PebbleBucks.sendError('Please open Settings.');
+    callback(false);
+    return;
+  }
+
   var xhr = new XMLHttpRequest();
 
   var url = PebbleBucks.domain + '/data';
@@ -172,11 +166,10 @@ PebbleBucks.fetchData = function(callback) {
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
   console.log('[fetchData] Fetching data...');
-  xhr.send();
+  xhr.send(window.localStorage.config);
 };
 
 PebbleBucks.init = function() {
-  PebbleBucks.cleanOldKeys();
   PebbleBucks.token = encodeURIComponent(Pebble.getAccountToken());
 
   Pebble.addEventListener('showConfiguration', PebbleBucks.onShowConfiguration);

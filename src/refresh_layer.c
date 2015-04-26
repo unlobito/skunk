@@ -1,9 +1,10 @@
 #include "refresh_layer.h"
 
+static GBitmap *error_bitmap;
 static GBitmap *refresh_bitmap;
-static const char *const refresh_text = "Refresh";
+static const char *const refresh_text = "Please open\nsettings.";
 static const char *const refresh_text_updating = "Updating...";
-static const int16_t text_layer_height = 22;
+static const int16_t text_layer_height = 40;
 
 struct RefreshLayer {
     Layer *layer;
@@ -13,10 +14,12 @@ struct RefreshLayer {
 
 void refresh_layer_global_init(void) {
     refresh_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_REFRESH);
+    error_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_ERROR);
 }
 
 void refresh_layer_global_deinit(void) {
     gbitmap_destroy(refresh_bitmap);
+    gbitmap_destroy(error_bitmap);
 }
 
 RefreshLayer *refresh_layer_create(GRect frame) {
@@ -28,7 +31,7 @@ RefreshLayer *refresh_layer_create(GRect frame) {
 
     GRect icon_layer_frame = GRect(0, 0, frame.size.w, frame.size.h - text_layer_height);
     refresh_layer->icon_layer = bitmap_layer_create(icon_layer_frame);
-    bitmap_layer_set_bitmap(refresh_layer->icon_layer, refresh_bitmap);
+    bitmap_layer_set_bitmap(refresh_layer->icon_layer, error_bitmap);
     bitmap_layer_set_compositing_mode(refresh_layer->icon_layer, GCompOpAssignInverted);
     layer_add_child(refresh_layer->layer, (Layer *)refresh_layer->icon_layer);
 
@@ -52,6 +55,7 @@ void refresh_layer_destroy(RefreshLayer *refresh_layer) {
 }
 
 void refresh_layer_set_updating(RefreshLayer *refresh_layer, bool updating) {
+    bitmap_layer_set_bitmap(refresh_layer->icon_layer, updating ? refresh_bitmap : error_bitmap);
     text_layer_set_text(refresh_layer->text_layer, updating ? refresh_text_updating : refresh_text);
 }
 

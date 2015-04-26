@@ -142,8 +142,6 @@ static void window_up_click_handler(ClickRecognizerRef recognizer, void *context
 
 static void window_select_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (updating) return;
-
-    app_message_send_fetch_data();
 }
 
 static void app_message_init(void) {
@@ -219,6 +217,13 @@ static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card
 }
 
 static void app_message_inbox_received(DictionaryIterator *dict, void *context) {
+    Tuple *pushing_data = dict_find(dict, KEY_PUSHING_DATA);
+    if (pushing_data) {
+        updating = true;
+        update_visible_layers();
+        return;
+    }
+
     Tuple *error_tpl = dict_find(dict, KEY_ERROR);
     if (error_tpl) {
         char *string = error_tpl->value->cstring;
@@ -288,7 +293,7 @@ static void pager_layer_deinit(void) {
 }
 
 static void refresh_layer_init(void) {
-    refresh_layer = refresh_layer_create(GRect(4, 70, 136, 46));
+    refresh_layer = refresh_layer_create(GRect(4, 50, 136, 66));
 
     Layer *base_layer = refresh_layer_get_layer(refresh_layer);
     layer_set_hidden(base_layer, true);

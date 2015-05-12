@@ -1,4 +1,3 @@
-#include "a2_strdup.h"
 #include "pager_layer.h"
 
 struct PagerLayer {

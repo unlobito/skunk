@@ -1,6 +1,5 @@
 #include <pebble.h>
 
-#include "a2_strdup.h"
 #include "card_layer.h"
 #include "defines.h"
 #include "error_window.h"

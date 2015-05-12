@@ -1,46 +1,47 @@
 {
-  "uuid": "1e420b43-63be-45f7-822c-2a7d57a55384",
-  "shortName": "Skunk",
-  "longName": "Skunk",
-  "companyName": "Henri Watson",
-  "versionLabel": "1.0",
-  "versionCode": 1,
-  "watchapp": {
-    "watchface": false
-  },
-  "appKeys": {
-    "fetch_data":          0,
-    "pushing_data":        1,
-
-    "number_of_cards":    10,
-    "rewards_updated_at": 13,
-
-    "card_index":         20,
-    "card_value":         21,
-    "card_barcode_data":  22,
-    "card_name":          23,
-
-    "error":              99
-  },
-  "capabilities": [ "configurable" ],
-  "resources": {
-    "media": [
-      {
-        "menuIcon": true,
-        "type": "png",
-        "name": "IMAGE_MENU_ICON",
-        "file": "images/icon.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_REFRESH",
-        "file": "images/refresh.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_ERROR",
-        "file": "images/error.png"
-      }
-    ]
-  }
+    "appKeys": {
+        "card_barcode_data": 22,
+        "card_index": 20,
+        "card_name": 23,
+        "card_value": 21,
+        "error": 99,
+        "fetch_data": 0,
+        "number_of_cards": 10,
+        "pushing_data": 1,
+        "rewards_updated_at": 13
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "Henri Watson",
+    "longName": "Skunk",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/error.png",
+                "name": "IMAGE_ERROR",
+                "type": "png"
+            },
+            {
+                "file": "images/refresh.png",
+                "name": "IMAGE_REFRESH",
+                "type": "png"
+            },
+            {
+                "file": "images/icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "type": "png"
+            }
+        ]
+    },
+    "sdkVersion": "2",
+    "shortName": "Skunk",
+    "uuid": "1e420b43-63be-45f7-822c-2a7d57a55384",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
 }

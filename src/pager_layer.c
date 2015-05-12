@@ -8,9 +8,9 @@ struct PagerLayer {
     GTextLayoutCacheRef cache;
 };
 
-static const GSize outer_size = { 7, 7 };
-static const uint16_t outer_radius = 3;
-static const int16_t padding = 5;
+static const GSize outer_size = { 7, 7 }; // TODO: Fix magic numbers
+static const uint16_t outer_radius = 3; // TODO: extract to #define?
+static const int16_t padding = 5; // TODO: extract to #define?
 static void background_update_proc(Layer *layer, GContext* ctx);
 
 PagerLayer *pager_layer_create(GRect frame) {

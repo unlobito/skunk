@@ -28,7 +28,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_set_update_proc(card_layer->layer, background_update_proc);
     *(CardLayer **)layer_get_data(card_layer->layer) = card_layer;
 
-    card_layer->name_text_layer = text_layer_create(GRect(0, 0, 144, 22));
+    card_layer->name_text_layer = text_layer_create(GRect(0, 0, PEBBLE_WIDTH, 22)); // TODO: Fix magic number
     text_layer_set_background_color(card_layer->name_text_layer, GColorBlack);
     text_layer_set_font(card_layer->name_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->name_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -37,7 +37,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_text_layer);
 
 
-    card_layer->value_text_layer = text_layer_create(GRect(0, 115, 144, 22));
+    card_layer->value_text_layer = text_layer_create(GRect(0, 115, PEBBLE_WIDTH, 22)); // TODO: Fix magic numbers
     text_layer_set_background_color(card_layer->value_text_layer, GColorWhite);
     text_layer_set_font(card_layer->value_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->value_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -83,11 +83,11 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
         tobinstr(card_layer->barcode_data[current_byte], 8, block);
 
         for (int8_t p = 7; p >= 0; p--) {
-            if (block[p] == 49) {
+            if (block[p] == '1') { // TODO: What is 49??? 49 is the ascii representation of 1. WTF dude?!
                 // Non-linear barcodes are scaled 2x to save persistent storage space.
 
-                point_x = ( 72 - card_layer->barcode_width ) + raw_x * 2;
-                point_y = ( 84 - card_layer->barcode_height ) + raw_y * 2;
+                point_x = ( PEBBLE_WIDTH/2 - card_layer->barcode_width ) + raw_x * 2;
+                point_y = ( PEBBLE_HEIGHT/2 - card_layer->barcode_height ) + raw_y * 2;
 
                 graphics_draw_pixel(ctx, GPoint(point_x, point_y));
                 graphics_draw_pixel(ctx, GPoint(point_x + 1, point_y));

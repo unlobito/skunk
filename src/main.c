@@ -300,7 +300,7 @@ static void app_message_send_fetch_data(void) {
 }
 
 static void card_layer_init(void) {
-    card_layer = card_layer_create(GRect(0, 0, PEBBLE_WIDTH, PEBBLE_HEIGHT - TEXTBOX_HEIGHT)); // TODO: fix 140 magic number
+    card_layer = card_layer_create(GRect(0, 0, PEBBLE_WIDTH, PEBBLE_HEIGHT - TEXTBOX_HEIGHT));
     card_layer_set_index(card_layer, 0);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -312,7 +312,7 @@ static void card_layer_deinit(void) {
 }
 
 static void pager_layer_init(void) {
-    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - TEXTBOX_HEIGHT, PEBBLE_WIDTH, TEXTBOX_HEIGHT)); // TODO: fix magic numbers
+    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - TEXTBOX_HEIGHT, PEBBLE_WIDTH, TEXTBOX_HEIGHT));
     pager_layer_set_values(pager_layer, 0, 1);
 
     Layer *root_layer = window_get_root_layer(window);

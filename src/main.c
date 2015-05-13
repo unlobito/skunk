@@ -127,8 +127,8 @@ static void window_down_click_handler(ClickRecognizerRef recognizer, void *conte
     uint8_t num_cards = 0;
     persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
 
-    if (num_cards > 0 && current_page < num_cards - 1) {
-        current_page++;
+    if (num_cards > 0) {
+        current_page = (current_page + 1) % num_cards;
         update_visible_layers();
     }
 }
@@ -139,8 +139,11 @@ static void window_down_click_handler(ClickRecognizerRef recognizer, void *conte
 static void window_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (updating) return;
 
-    if (current_page > 0) {
-        current_page--;
+    uint8_t num_cards = 0;
+    persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
+    
+    if (num_cards > 0) {
+        current_page = (current_page - 1) % num_cards;
         update_visible_layers();
     }
 }

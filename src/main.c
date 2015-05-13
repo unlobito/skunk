@@ -1,6 +1,5 @@
 #include <pebble.h>
 
-#include "a2_strdup.h"
 #include "card_layer.h"
 #include "defines.h"
 #include "error_window.h"
@@ -119,23 +118,32 @@ static void window_click_config_provider(void *context) {
     window_single_click_subscribe(BUTTON_ID_SELECT, window_select_click_handler);
 }
 
+/*
+ * Advance to the next card when down is pressed
+ */
 static void window_down_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (updating) return;
 
     uint8_t num_cards = 0;
     persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
 
-    if (num_cards > 0 && current_page < num_cards - 1) {
-        current_page++;
+    if (num_cards > 0) {
+        current_page = (current_page + 1) % num_cards;
         update_visible_layers();
     }
 }
 
+/*
+ * Go to the previous card when up is pressed
+ */
 static void window_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (updating) return;
 
-    if (current_page > 0) {
-        current_page--;
+    uint8_t num_cards = 0;
+    persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
+    
+    if (num_cards > 0) {
+        current_page = (current_page - 1) % num_cards;
         update_visible_layers();
     }
 }
@@ -144,6 +152,9 @@ static void disable_force_light(void *data) {
     light_enable(false);
 }
 
+/*
+ * Turn backlight on for 30 seconds when select button is pressed
+ */
 static void window_select_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (updating) return;
 
@@ -163,6 +174,10 @@ static void app_message_inbox_dropped(AppMessageResult reason, void *context) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "%s <- 0x%X", __PRETTY_FUNCTION__, reason);
 }
 
+/*
+ * Read new barcode data sent from config page for skunk in pebble app.
+ * Save this information to persistant storage
+ */
 static void app_message_read_first_payload(DictionaryIterator *dict) {
     Tuple *tuple = dict_read_first(dict);
     if (!tuple) {
@@ -194,6 +209,10 @@ static void app_message_read_first_payload(DictionaryIterator *dict) {
     }
 }
 
+/*
+ * Read changed barcode data sent from config page for skunk in pebble app.
+ * Save this information to persistant storage
+ */
 static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card_index) {
     Tuple *tuple = dict_read_first(dict);
     if (!tuple) {
@@ -226,6 +245,9 @@ static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card
     }
 }
 
+/*
+ * Determines what to do with data received from skunk config page
+ */
 static void app_message_inbox_received(DictionaryIterator *dict, void *context) {
     Tuple *pushing_data = dict_find(dict, KEY_PUSHING_DATA);
     if (pushing_data) {
@@ -278,7 +300,7 @@ static void app_message_send_fetch_data(void) {
 }
 
 static void card_layer_init(void) {
-    card_layer = card_layer_create(GRect(0, 0, 144, 140));
+    card_layer = card_layer_create(GRect(0, 0, PEBBLE_WIDTH, PEBBLE_HEIGHT - TEXTBOX_HEIGHT));
     card_layer_set_index(card_layer, 0);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -290,7 +312,7 @@ static void card_layer_deinit(void) {
 }
 
 static void pager_layer_init(void) {
-    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - 18, PEBBLE_WIDTH, 7));
+    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - TEXTBOX_HEIGHT, PEBBLE_WIDTH, TEXTBOX_HEIGHT));
     pager_layer_set_values(pager_layer, 0, 1);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -302,7 +324,7 @@ static void pager_layer_deinit(void) {
 }
 
 static void refresh_layer_init(void) {
-    refresh_layer = refresh_layer_create(GRect(4, 50, 136, 66));
+    refresh_layer = refresh_layer_create(GRect(4, 50, 136, 66)); // TODO: fix magic numbers
 
     Layer *base_layer = refresh_layer_get_layer(refresh_layer);
     layer_set_hidden(base_layer, true);

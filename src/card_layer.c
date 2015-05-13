@@ -1,7 +1,6 @@
 #include "a2_strdup.h"
 #include "card_layer.h"
 #include "defines.h"
-#include "tobinstr.h"
 
 #define BARCODE_SUB_BITMAP_COUNT 8
 
@@ -28,7 +27,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_set_update_proc(card_layer->layer, background_update_proc);
     *(CardLayer **)layer_get_data(card_layer->layer) = card_layer;
 
-    card_layer->name_text_layer = text_layer_create(GRect(0, 0, 144, 22));
+    card_layer->name_text_layer = text_layer_create(GRect(0, 0, PEBBLE_WIDTH, TEXTBOX_HEIGHT));
     text_layer_set_background_color(card_layer->name_text_layer, GColorBlack);
     text_layer_set_font(card_layer->name_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->name_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -37,7 +36,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_text_layer);
 
 
-    card_layer->value_text_layer = text_layer_create(GRect(0, 115, 144, 22));
+    card_layer->value_text_layer = text_layer_create(GRect(0, 115, PEBBLE_WIDTH, TEXTBOX_HEIGHT));
     text_layer_set_background_color(card_layer->value_text_layer, GColorWhite);
     text_layer_set_font(card_layer->value_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->value_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -64,7 +63,6 @@ Layer *card_layer_get_layer(CardLayer *card_layer) {
 }
 
 static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
-    char block[9];
     int16_t raw_x, raw_y, point_x, point_y;
     raw_x = 0;
     raw_y = 0;
@@ -80,14 +78,12 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
           current_byte++
         ) {
 
-        tobinstr(card_layer->barcode_data[current_byte], 8, block);
-
-        for (int8_t p = 7; p >= 0; p--) {
-            if (block[p] == 49) {
+        for (int8_t p = 0; p < 8; p++) {
+            if (card_layer->barcode_data[current_byte] & (1 << p)) {
                 // Non-linear barcodes are scaled 2x to save persistent storage space.
 
-                point_x = ( 72 - card_layer->barcode_width ) + raw_x * 2;
-                point_y = ( 84 - card_layer->barcode_height ) + raw_y * 2;
+                point_x = ( PEBBLE_WIDTH/2 - card_layer->barcode_width ) + raw_x * 2;
+                point_y = ( PEBBLE_HEIGHT/2 - card_layer->barcode_height ) + raw_y * 2;
 
                 graphics_draw_pixel(ctx, GPoint(point_x, point_y));
                 graphics_draw_pixel(ctx, GPoint(point_x + 1, point_y));
@@ -101,13 +97,10 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
                 raw_y++;
             }
         }
-
-        memset(block, 0, 9);
     }
 }
 
 static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
-    char block[9];
     int16_t raw_x, point_x, point_y;
 
     raw_x = 0;
@@ -123,10 +116,8 @@ static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
           current_byte++
         ) {
 
-        tobinstr(card_layer->barcode_data[current_byte], 8, block);
-
-        for (int16_t current_pixel = 7; current_pixel >= 0; current_pixel--) {
-            if (block[current_pixel] == 49) {
+        for (int16_t current_pixel = 0; current_pixel < 8; current_pixel++) {
+            if (card_layer->barcode_data[current_byte] & (1 << current_pixel)) {
                 for (int16_t current_vertical = 0; current_vertical < card_layer->barcode_height; current_vertical++) {
                     point_x = ( PEBBLE_WIDTH / 2 - card_layer->barcode_width / 2 ) + raw_x;
                     point_y = ( PEBBLE_HEIGHT / 2 - card_layer->barcode_height / 2 ) + current_vertical;
@@ -137,8 +128,6 @@ static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
 
             raw_x++;
         }
-
-        memset(block, 0, 9);
     }
 }
 

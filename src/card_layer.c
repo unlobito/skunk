@@ -27,7 +27,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_set_update_proc(card_layer->layer, background_update_proc);
     *(CardLayer **)layer_get_data(card_layer->layer) = card_layer;
 
-    card_layer->name_text_layer = text_layer_create(GRect(0, 0, PEBBLE_WIDTH, 22)); // TODO: Fix magic number
+    card_layer->name_text_layer = text_layer_create(GRect(0, 0, PEBBLE_WIDTH, TEXTBOX_HEIGHT)); // TODO: Fix magic number
     text_layer_set_background_color(card_layer->name_text_layer, GColorBlack);
     text_layer_set_font(card_layer->name_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->name_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -36,7 +36,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_text_layer);
 
 
-    card_layer->value_text_layer = text_layer_create(GRect(0, 115, PEBBLE_WIDTH, 22)); // TODO: Fix magic numbers
+    card_layer->value_text_layer = text_layer_create(GRect(0, 115, PEBBLE_WIDTH, TEXTBOX_HEIGHT)); // TODO: Fix magic numbers
     text_layer_set_background_color(card_layer->value_text_layer, GColorWhite);
     text_layer_set_font(card_layer->value_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->value_text_layer, GTextOverflowModeTrailingEllipsis);

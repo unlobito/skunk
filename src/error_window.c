@@ -17,7 +17,10 @@ void error_window_init(void) {
     window = window_create();
     window_set_background_color(window, GColorBlack);
     window_set_click_config_provider(window, window_click_config_provider);
-    window_set_fullscreen(window, true);
+
+    #ifdef PBL_PLATFORM_APLITE
+      window_set_fullscreen(window, true);
+    #endif
 
     static const WindowHandlers window_handlers = {
         .load = window_load,

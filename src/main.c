@@ -65,7 +65,10 @@ static void init(void) {
     window = window_create();
     window_set_background_color(window, GColorBlack);
     window_set_click_config_provider(window, window_click_config_provider);
-    window_set_fullscreen(window, true);
+
+    #ifdef PBL_PLATFORM_APLITE
+      window_set_fullscreen(window, true);
+    #endif
 
     static const WindowHandlers window_handlers = {
         .load = window_load,
@@ -141,7 +144,7 @@ static void window_up_click_handler(ClickRecognizerRef recognizer, void *context
 
     uint8_t num_cards = 0;
     persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
-    
+
     if (num_cards > 0) {
         current_page = (current_page - 1) % num_cards;
         update_visible_layers();

@@ -341,12 +341,12 @@ static void refresh_layer_deinit(void) {
 }
 
 static void update_visible_layers(void) {
-    const bool refresh_layer_hidden = !updating && persist_exists(STORAGE_NUMBER_OF_CARDS) && persist_read_int(STORAGE_NUMBER_OF_CARDS) != 0;
-    const bool cards_layer_hidden = updating || !refresh_layer_hidden;
-    const bool pager_layer_hidden = updating;
-
     uint8_t num_cards = 0;
     persist_read_data(STORAGE_NUMBER_OF_CARDS, &num_cards, sizeof(num_cards));
+
+    const bool refresh_layer_hidden = !updating && persist_exists(STORAGE_NUMBER_OF_CARDS) && num_cards != 0;
+    const bool cards_layer_hidden = updating || !refresh_layer_hidden;
+    const bool pager_layer_hidden = updating;
 
     if (current_page > num_cards - 1) {
         current_page = num_cards - 1;

@@ -4,7 +4,7 @@ Skunk.domain = 'https://skunkapp.herokuapp.com';
 Skunk.state = null;
 Skunk.token = '';
 Skunk.updating = false;
-Skunk.version = encodeURIComponent('1.0');
+Skunk.version = encodeURIComponent('1.1');
 
 Skunk.loadState = function() {
   var state_json = window.localStorage.state;

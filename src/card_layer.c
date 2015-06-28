@@ -78,10 +78,10 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
     const int16_t MID_HEIGHT = (PEBBLE_HEIGHT - NAME_LAYER_HEIGHT - PAGER_LAYER_HEIGHT) / 2 + NAME_LAYER_HEIGHT;
 
     // Non-linear barcodes are scaled to save persistent storage space. Dynamically calculate
-    // the maximum integer scaling factor, keep a white border of 2 units around.
+    // the maximum integer scaling factor, keep a white border of 1 units around.
 
-    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + 2 + 2);
-    const int16_t SCALING_FACTOR_Y = MAX_HEIGHT / (card_layer->barcode_height + 2 + 2);
+    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + 2);
+    const int16_t SCALING_FACTOR_Y = MAX_HEIGHT / (card_layer->barcode_height + 2);
 
     // actual scaling factor is the least of x and y scaling, but at least 1
     const int16_t SCALING_FACTOR = MAX( MIN(SCALING_FACTOR_X, SCALING_FACTOR_Y), 1);
@@ -126,8 +126,8 @@ static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
 
     int16_t img_pixels = card_layer->barcode_width;
 
-    // Try to do an integer scale if possible, keep white border of 2 units on each side
-    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + 2 + 2);
+    // Try to do an integer scale if possible, keep white border of 1 unit on each side
+    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + 2);
     const int16_t SCALING_FACTOR = MAX( SCALING_FACTOR_X, 1);
 
     // The comparison part of this loop adds 7 to the barcode width to allow C

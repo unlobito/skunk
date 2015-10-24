@@ -42,8 +42,8 @@
   "sdkVersion": "3",
   "shortName": "Skunk",
   "uuid": "1e420b43-63be-45f7-822c-2a7d57a55384",
-  "versionCode": 3,
-  "versionLabel": "1.2",
+  "versionCode": 4,
+  "versionLabel": "1.3",
   "watchapp": {
     "watchface": false
   },

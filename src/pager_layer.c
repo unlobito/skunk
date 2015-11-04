@@ -4,7 +4,7 @@ struct PagerLayer {
     Layer *layer;
     uint8_t index;
     uint8_t count;
-    GTextLayoutCacheRef cache;
+    /*interval use only: GTextLayoutCacheRef cache; */
 };
 
 static const GSize outer_size = { 7, 7 }; // TODO: Fix magic numbers
@@ -66,7 +66,7 @@ static void background_update_proc(Layer *layer, GContext* ctx) {
             bounds,
             GTextOverflowModeFill,
             GTextAlignmentCenter,
-            pager_layer->cache
+            NULL //pager_layer->cache (always NULL for third-party apps)
         );
     } else {
         GRect rect = GRect(0, 0, outer_size.w * count + padding * (count - 1), outer_size.h);

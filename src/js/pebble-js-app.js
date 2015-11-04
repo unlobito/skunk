@@ -100,16 +100,16 @@ Skunk.onShowConfiguration = function() {
   if (!window.localStorage.config || window.localStorage.config == "") {
     var url = Skunk.domain + '/settings';
   } else {
-    var url = Skunk.domain + '/settings#' + base64_encode(window.localStorage.config);
+    var url = Skunk.domain + '/settings#' + encodeURIComponent(window.localStorage.config);
   }
   Pebble.openURL(url);
 };
 
 Skunk.onWebViewClosed = function(event) {
-  var response = event.response;
-  if (!response || base64_decode(response).indexOf('{') === -1) return;
+  var response = decodeURIComponent(event.response);
+  if (!response || response.indexOf('{') === -1) return;
 
-  window.localStorage.config = base64_decode(response);
+  window.localStorage.config = response;
 
   Pebble.sendAppMessage({pushing_data: true});
 };

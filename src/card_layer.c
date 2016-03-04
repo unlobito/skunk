@@ -34,7 +34,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_background_layer);
     int16_t text_y = (CARD_LAYER_NAME_HEIGHT - TEXT_HEIGHT) / 2;
 #ifdef PBL_ROUND
-    text_y += 6; // Magic number to avoid round screen border
+    text_y += 4; // Magic number to avoid round screen border
 #endif
     card_layer->name_text_layer = text_layer_create(GRect(0, text_y, PEBBLE_WIDTH, TEXT_HEIGHT));
     text_layer_set_background_color(card_layer->name_text_layer, GColorBlack);
@@ -92,42 +92,47 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
     // The mid point between the black border at the top (name_layer) and at the bottom (pager_layer)
     // is not exactly in the middle of the screen
     const int16_t MID_HEIGHT = (PEBBLE_HEIGHT - CARD_LAYER_NAME_HEIGHT - PAGER_LAYER_HEIGHT) / 2 + CARD_LAYER_NAME_HEIGHT;
+    
+    const int16_t MID_WIDTH = PEBBLE_WIDTH / 2;
+    
+    const int16_t CONTENT_MARGIN = 1;
 
     // Non-linear barcodes are scaled to save persistent storage space. Dynamically calculate
     // the maximum integer scaling factor, keep a white border of 1 units around.
 
-    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + 2);
-    const int16_t SCALING_FACTOR_Y = MAX_HEIGHT / (card_layer->barcode_height + 2);
+    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + CONTENT_MARGIN * 2);
+    const int16_t SCALING_FACTOR_Y = MAX_HEIGHT / (card_layer->barcode_height + CONTENT_MARGIN * 2);
 
     // actual scaling factor is the least of x and y scaling, but at least 1
     const int16_t SCALING_FACTOR = MAX( MIN(SCALING_FACTOR_X, SCALING_FACTOR_Y), 1);
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "image size %ix%i, scaling by %i", card_layer->barcode_width, card_layer->barcode_height, SCALING_FACTOR);
 
+    const int16_t first_point_x = MID_WIDTH - SCALING_FACTOR * (card_layer->barcode_width / 2);
+    const int16_t first_point_y = MID_HEIGHT - SCALING_FACTOR * (card_layer->barcode_height / 2);
+    
     // The comparison part of this loop adds 7 to the barcode width to allow C
     // to ceil the byte count. Since the server will always pad incomplete bytes
     // with 0, this is reasonably safe.
     for (
-          int16_t current_byte = IMG_HEADER_OFFSET;
-          current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
-          current_byte++
-        ) {
-
+         int16_t current_byte = IMG_HEADER_OFFSET;
+         current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
+         current_byte++
+         ) {
+        
         for (int8_t p = 0; p < 8; p++) {
             if (card_layer->barcode_data[current_byte] & (1 << p)) {
-
                 for(int8_t s_x = 0; s_x < SCALING_FACTOR; s_x++) {
                     for(int8_t s_y = 0; s_y < SCALING_FACTOR; s_y++) {
-                        point_x = ( PEBBLE_WIDTH/2 - (SCALING_FACTOR * card_layer->barcode_width)/2 ) + SCALING_FACTOR*raw_x + s_x;
-                        point_y = ( MID_HEIGHT - (SCALING_FACTOR * card_layer->barcode_height)/2 ) + SCALING_FACTOR*raw_y + s_y;
-
+                        point_x = first_point_x + SCALING_FACTOR * raw_x + s_x;
+                        point_y = first_point_y + SCALING_FACTOR * raw_y + s_y;
                         graphics_draw_pixel(ctx, GPoint(point_x, point_y));
                     }
                 }
             }
-
+            
             raw_x++;
-            if (raw_x == card_layer->barcode_width ) {
+            if (raw_x == card_layer->barcode_width) {
                 raw_x = 0;
                 raw_y++;
             }
@@ -141,33 +146,35 @@ static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
     raw_x = 0;
 
     int16_t img_pixels = card_layer->barcode_width;
+    
+    const int16_t CONTENT_MARGIN = 1;
 
     // Try to do an integer scale if possible, keep white border of 1 unit on each side
-    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + 2);
+    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + CONTENT_MARGIN * 2);
     const int16_t SCALING_FACTOR = MAX( SCALING_FACTOR_X, 1);
+
+    const int16_t first_point_x = PEBBLE_WIDTH / 2 - (SCALING_FACTOR * card_layer->barcode_width) / 2;
+    const int16_t first_point_y = PEBBLE_HEIGHT / 2 - card_layer->barcode_height / 2;
 
     // The comparison part of this loop adds 7 to the barcode width to allow C
     // to ceil the byte count. Since the server will always pad incomplete bytes
     // with 0, this is reasonably safe.
     for (
-          int16_t current_byte = IMG_HEADER_OFFSET;
-          current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
-          current_byte++
-        ) {
-
+         int16_t current_byte = IMG_HEADER_OFFSET;
+         current_byte < (IMG_HEADER_OFFSET + ( img_pixels + IMG_BIT_SIZE - 1 ) / IMG_BIT_SIZE );
+         current_byte++
+         ) {
         for (int16_t current_pixel = 0; current_pixel < 8; current_pixel++) {
             if (card_layer->barcode_data[current_byte] & (1 << current_pixel)) {
                 for(int8_t s_x = 0; s_x < SCALING_FACTOR; s_x++) {
-                    point_x = ( PEBBLE_WIDTH/2 - (SCALING_FACTOR * card_layer->barcode_width)/2 ) + SCALING_FACTOR*raw_x + s_x;
-
+                    point_x = first_point_x + SCALING_FACTOR * raw_x + s_x;
                     for (int16_t current_vertical = 0; current_vertical < card_layer->barcode_height; current_vertical++) {
-                        point_y = ( PEBBLE_HEIGHT / 2 - card_layer->barcode_height / 2 ) + current_vertical;
-
+                        point_y = first_point_y + current_vertical;
                         graphics_draw_pixel(ctx, GPoint(point_x, point_y));
                     }
                 }
             }
-
+            
             raw_x++;
         }
     }

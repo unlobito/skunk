@@ -83,7 +83,7 @@ static void background_update_proc(Layer *layer, GContext* ctx) {
     } else {
         int16_t y = bounds.origin.y + bounds.size.h / 2;
 #ifdef PBL_ROUND
-        y -= 6; // Magic number to avoid round screen border
+        y -= 4; // Magic number to avoid round screen border
 #endif
         int16_t x = (bounds.origin.x + bounds.size.w - PAGER_LAYER_CIRCLE_DISTANCE * (count-1)) / 2;
         for (uint8_t i = 0; i < count; i++) {

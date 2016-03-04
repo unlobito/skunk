@@ -1,10 +1,10 @@
 #include "refresh_layer.h"
+#include "defines.h"
 
 static GBitmap *error_bitmap;
 static GBitmap *refresh_bitmap;
 static const char *const refresh_text = "Please open\nsettings.";
 static const char *const refresh_text_updating = "Updating...";
-static const int16_t text_layer_height = 40;
 
 struct RefreshLayer {
     Layer *layer;
@@ -29,13 +29,13 @@ RefreshLayer *refresh_layer_create(GRect frame) {
 
     refresh_layer->layer = layer_create(frame);
 
-    GRect icon_layer_frame = GRect(0, 0, frame.size.w, frame.size.h - text_layer_height);
+    GRect icon_layer_frame = GRect(0, 0, frame.size.w, frame.size.h - REFRESH_LAYER_TEXT_HEIGHT); // image height = 19
     refresh_layer->icon_layer = bitmap_layer_create(icon_layer_frame);
     bitmap_layer_set_bitmap(refresh_layer->icon_layer, error_bitmap);
-    bitmap_layer_set_compositing_mode(refresh_layer->icon_layer, GCompOpAssignInverted);
+    bitmap_layer_set_compositing_mode(refresh_layer->icon_layer, GCompOpSet);
     layer_add_child(refresh_layer->layer, (Layer *)refresh_layer->icon_layer);
 
-    GRect text_layer_frame = GRect(0, frame.size.h - text_layer_height, frame.size.w, text_layer_height);
+    GRect text_layer_frame = GRect(0, frame.size.h - REFRESH_LAYER_TEXT_HEIGHT - TEXT_MARGIN, frame.size.w, REFRESH_LAYER_TEXT_HEIGHT);
     refresh_layer->text_layer = text_layer_create(text_layer_frame);
     text_layer_set_background_color(refresh_layer->text_layer, GColorBlack);
     text_layer_set_font(refresh_layer->text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));

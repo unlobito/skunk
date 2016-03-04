@@ -14,9 +14,11 @@ struct CardLayer {
     TextLayer *value_text_layer;
     char *name_text;
     TextLayer *name_text_layer;
+    Layer *name_background_layer;
 };
 
 static void background_update_proc(Layer *layer, GContext* ctx);
+static void name_background_update_proc(Layer *layer, GContext* ctx);
 
 CardLayer *card_layer_create(GRect frame) {
     static const size_t CardLayer_size = sizeof(CardLayer);
@@ -26,17 +28,30 @@ CardLayer *card_layer_create(GRect frame) {
     card_layer->layer = layer_create_with_data(frame, sizeof(CardLayer *));
     layer_set_update_proc(card_layer->layer, background_update_proc);
     *(CardLayer **)layer_get_data(card_layer->layer) = card_layer;
-
-    card_layer->name_text_layer = text_layer_create(GRect(0, 0, PEBBLE_WIDTH, NAME_LAYER_HEIGHT));
+    
+    card_layer->name_background_layer = layer_create(GRect(0, 0, PEBBLE_WIDTH, CARD_LAYER_NAME_HEIGHT));
+    layer_set_update_proc(card_layer->name_background_layer, name_background_update_proc);
+    layer_add_child(card_layer->layer, (Layer *)card_layer->name_background_layer);
+    int16_t text_y = (CARD_LAYER_NAME_HEIGHT - TEXT_HEIGHT) / 2;
+#ifdef PBL_ROUND
+    text_y += 6; // Magic number to avoid round screen border
+#endif
+    card_layer->name_text_layer = text_layer_create(GRect(0, text_y, PEBBLE_WIDTH, TEXT_HEIGHT));
     text_layer_set_background_color(card_layer->name_text_layer, GColorBlack);
     text_layer_set_font(card_layer->name_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->name_text_layer, GTextOverflowModeTrailingEllipsis);
     text_layer_set_text_alignment(card_layer->name_text_layer, GTextAlignmentCenter);
     text_layer_set_text_color(card_layer->name_text_layer, GColorWhite);
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_text_layer);
+#ifdef PBL_ROUND
+    // Note: The text_layer_enable_screen_text_flow_and_paging() function must be called after
+    // the TextLayer is added to the view heirachy (i.e.: after using layer_add_child()),
+    // or else it will have no effect.
+    text_layer_enable_screen_text_flow_and_paging(card_layer->name_text_layer, 2);
+#endif
 
 
-    card_layer->value_text_layer = text_layer_create(GRect(0, 115, PEBBLE_WIDTH, 22)); // TODO: Fix magic numbers
+    card_layer->value_text_layer = text_layer_create(GRect(0, frame.size.h - CARD_LAYER_VALUE_HEIGHT, PEBBLE_WIDTH, CARD_LAYER_VALUE_HEIGHT));
     text_layer_set_background_color(card_layer->value_text_layer, GColorWhite);
     text_layer_set_font(card_layer->value_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->value_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -52,6 +67,7 @@ void card_layer_destroy(CardLayer *card_layer) {
     if (card_layer->barcode) gbitmap_destroy(card_layer->barcode);
     if (card_layer->barcode_data) free(card_layer->barcode_data);
     if (card_layer->name_text) free(card_layer->name_text);
+    layer_destroy(card_layer->name_background_layer);
     text_layer_destroy(card_layer->name_text_layer);
     if (card_layer->value_text) free(card_layer->value_text);
     text_layer_destroy(card_layer->value_text_layer);
@@ -71,11 +87,11 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
 
     // name_text_layer and pager_layer need to be subtracted from the pebble height
     // as does twice the WHITE_BORDER
-    const int16_t MAX_HEIGHT = PEBBLE_HEIGHT - NAME_LAYER_HEIGHT - PAGER_LAYER_HEIGHT;
+    const int16_t MAX_HEIGHT = PEBBLE_HEIGHT - CARD_LAYER_NAME_HEIGHT - PAGER_LAYER_HEIGHT;
 
     // The mid point between the black border at the top (name_layer) and at the bottom (pager_layer)
     // is not exactly in the middle of the screen
-    const int16_t MID_HEIGHT = (PEBBLE_HEIGHT - NAME_LAYER_HEIGHT - PAGER_LAYER_HEIGHT) / 2 + NAME_LAYER_HEIGHT;
+    const int16_t MID_HEIGHT = (PEBBLE_HEIGHT - CARD_LAYER_NAME_HEIGHT - PAGER_LAYER_HEIGHT) / 2 + CARD_LAYER_NAME_HEIGHT;
 
     // Non-linear barcodes are scaled to save persistent storage space. Dynamically calculate
     // the maximum integer scaling factor, keep a white border of 1 units around.
@@ -175,6 +191,12 @@ static void background_update_proc(Layer *layer, GContext* ctx) {
             draw_barcode_linear(card_layer, ctx);
             break;
     }
+}
+
+static void name_background_update_proc(Layer *layer, GContext* ctx) {
+    GRect bounds = layer_get_bounds(layer);
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
 bool card_layer_set_index(CardLayer *card_layer, uint8_t index) {

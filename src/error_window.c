@@ -1,5 +1,6 @@
 #include "a2_strdup.h"
 #include "error_window.h"
+#include "defines.h"
 
 static GBitmap *error_bitmap;
 static Window *window;
@@ -17,10 +18,6 @@ void error_window_init(void) {
     window = window_create();
     window_set_background_color(window, GColorBlack);
     window_set_click_config_provider(window, window_click_config_provider);
-
-    #ifdef PBL_PLATFORM_APLITE
-      window_set_fullscreen(window, true);
-    #endif
 
     static const WindowHandlers window_handlers = {
         .load = window_load,
@@ -59,7 +56,7 @@ static void window_load(Window *window) {
     bitmap_layer_set_bitmap(icon_layer, error_bitmap);
     bitmap_layer_set_compositing_mode(icon_layer, GCompOpAssignInverted);
 
-    GRect text_layer_frame = GRect(4, 83, 136, 50);
+    GRect text_layer_frame = GRect(TEXT_MARGIN, 83, 136, 50);
     text_layer = text_layer_create(text_layer_frame);
     text_layer_set_background_color(text_layer, GColorBlack);
     text_layer_set_font(text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));

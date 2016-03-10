@@ -24,18 +24,18 @@
       {
         "file": "images/error.png",
         "name": "IMAGE_ERROR",
-        "type": "png"
+        "type": "bitmap"
       },
       {
         "file": "images/refresh.png",
         "name": "IMAGE_REFRESH",
-        "type": "png"
+        "type": "bitmap"
       },
       {
         "file": "images/icon.png",
         "menuIcon": true,
         "name": "IMAGE_MENU_ICON",
-        "type": "png"
+        "type": "bitmap"
       }
     ]
   },
@@ -49,6 +49,7 @@
   },
   "targetPlatforms": [
     "aplite",
-    "basalt"
+    "basalt",
+    "chalk"
   ]
 }

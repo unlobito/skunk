@@ -66,10 +66,6 @@ static void init(void) {
     window_set_background_color(window, GColorBlack);
     window_set_click_config_provider(window, window_click_config_provider);
 
-    #ifdef PBL_PLATFORM_APLITE
-      window_set_fullscreen(window, true);
-    #endif
-
     static const WindowHandlers window_handlers = {
         .load = window_load,
         .unload = window_unload,
@@ -303,7 +299,7 @@ static void app_message_send_fetch_data(void) {
 }
 
 static void card_layer_init(void) {
-    card_layer = card_layer_create(GRect(0, 0, PEBBLE_WIDTH, 140)); // TODO: fix 140 magic number
+    card_layer = card_layer_create(GRect(0, 0, PEBBLE_WIDTH, PEBBLE_HEIGHT - PAGER_LAYER_HEIGHT));
     card_layer_set_index(card_layer, 0);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -315,7 +311,7 @@ static void card_layer_deinit(void) {
 }
 
 static void pager_layer_init(void) {
-    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - 18, PEBBLE_WIDTH, 7)); // TODO: fix magic numbers
+    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - PAGER_LAYER_HEIGHT, PEBBLE_WIDTH, PAGER_LAYER_HEIGHT));
     pager_layer_set_values(pager_layer, 0, 1);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -327,7 +323,7 @@ static void pager_layer_deinit(void) {
 }
 
 static void refresh_layer_init(void) {
-    refresh_layer = refresh_layer_create(GRect(4, 50, 136, 66)); // TODO: fix magic numbers
+    refresh_layer = refresh_layer_create(GRect(TEXT_MARGIN, (PEBBLE_HEIGHT - REFRESH_LAYER_HEIGHT) / 2, PEBBLE_WIDTH - TEXT_MARGIN * 2, REFRESH_LAYER_HEIGHT));
 
     Layer *base_layer = refresh_layer_get_layer(refresh_layer);
     layer_set_hidden(base_layer, true);

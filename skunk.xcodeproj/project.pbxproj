@@ -1,0 +1,653 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		45C4686A1C89A0C700783BFD /* a2_strdup.c in Sources */ = {isa = PBXBuildFile; fileRef = 45C4685C1C89A0C700783BFD /* a2_strdup.c */; };
+		45C4686B1C89A0C700783BFD /* card_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 45C4685E1C89A0C700783BFD /* card_layer.c */; };
+		45C4686C1C89A0C700783BFD /* error_window.c in Sources */ = {isa = PBXBuildFile; fileRef = 45C468611C89A0C700783BFD /* error_window.c */; };
+		45C4686D1C89A0C700783BFD /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 45C468651C89A0C700783BFD /* main.c */; };
+		45C4686E1C89A0C700783BFD /* pager_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 45C468661C89A0C700783BFD /* pager_layer.c */; };
+		45C4686F1C89A0C700783BFD /* refresh_layer.c in Sources */ = {isa = PBXBuildFile; fileRef = 45C468681C89A0C700783BFD /* refresh_layer.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		45EC75501B4C0FFA00524DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		450852001B4FCF61008098D5 /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
+		4587C5FA1BC976BE00FEC09B /* Aplite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Aplite; sourceTree = BUILT_PRODUCTS_DIR; };
+		4587C5FB1BC976BE00FEC09B /* Basalt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Basalt; sourceTree = BUILT_PRODUCTS_DIR; };
+		4587C5FC1BC976BE00FEC09B /* Chalk */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Chalk; sourceTree = BUILT_PRODUCTS_DIR; };
+		4587C5FD1BC976BE00FEC09B /* Device Wifi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Device Wifi"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4587C5FE1BC976BE00FEC09B /* HiddenTarget */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HiddenTarget; sourceTree = BUILT_PRODUCTS_DIR; };
+		459536851BCFD43C0028235C /* Device BT */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Device BT"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4599DF591B4BE0E7007C5729 /* appinfo.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = appinfo.json; sourceTree = "<group>"; };
+		45C4685C1C89A0C700783BFD /* a2_strdup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = a2_strdup.c; sourceTree = "<group>"; };
+		45C4685D1C89A0C700783BFD /* a2_strdup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = a2_strdup.h; sourceTree = "<group>"; };
+		45C4685E1C89A0C700783BFD /* card_layer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = card_layer.c; sourceTree = "<group>"; };
+		45C4685F1C89A0C700783BFD /* card_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = card_layer.h; sourceTree = "<group>"; };
+		45C468601C89A0C700783BFD /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
+		45C468611C89A0C700783BFD /* error_window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error_window.c; sourceTree = "<group>"; };
+		45C468621C89A0C700783BFD /* error_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error_window.h; sourceTree = "<group>"; };
+		45C468641C89A0C700783BFD /* pebble-js-app.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "pebble-js-app.js"; sourceTree = "<group>"; };
+		45C468651C89A0C700783BFD /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		45C468661C89A0C700783BFD /* pager_layer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pager_layer.c; sourceTree = "<group>"; };
+		45C468671C89A0C700783BFD /* pager_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pager_layer.h; sourceTree = "<group>"; };
+		45C468681C89A0C700783BFD /* refresh_layer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = refresh_layer.c; sourceTree = "<group>"; };
+		45C468691C89A0C700783BFD /* refresh_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = refresh_layer.h; sourceTree = "<group>"; };
+		45D9B32A1C37415100D7E899 /* Device CloudPebble */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Device CloudPebble"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		45EC754F1B4C0FFA00524DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		454B0ADB1B4BD21F00417493 = {
+			isa = PBXGroup;
+			children = (
+				4599DF591B4BE0E7007C5729 /* appinfo.json */,
+				450852001B4FCF61008098D5 /* resources */,
+				45C4685B1C89A0C700783BFD /* src */,
+				4587C5FF1BC976E100FEC09B /* Products */,
+				459536851BCFD43C0028235C /* Device BT */,
+				45D9B32A1C37415100D7E899 /* Device CloudPebble */,
+			);
+			sourceTree = "<group>";
+		};
+		4587C5FF1BC976E100FEC09B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4587C5FA1BC976BE00FEC09B /* Aplite */,
+				4587C5FB1BC976BE00FEC09B /* Basalt */,
+				4587C5FC1BC976BE00FEC09B /* Chalk */,
+				4587C5FD1BC976BE00FEC09B /* Device Wifi */,
+				4587C5FE1BC976BE00FEC09B /* HiddenTarget */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		45C4685B1C89A0C700783BFD /* src */ = {
+			isa = PBXGroup;
+			children = (
+				45C4685C1C89A0C700783BFD /* a2_strdup.c */,
+				45C4685D1C89A0C700783BFD /* a2_strdup.h */,
+				45C4685E1C89A0C700783BFD /* card_layer.c */,
+				45C4685F1C89A0C700783BFD /* card_layer.h */,
+				45C468601C89A0C700783BFD /* defines.h */,
+				45C468611C89A0C700783BFD /* error_window.c */,
+				45C468621C89A0C700783BFD /* error_window.h */,
+				45C468631C89A0C700783BFD /* js */,
+				45C468651C89A0C700783BFD /* main.c */,
+				45C468661C89A0C700783BFD /* pager_layer.c */,
+				45C468671C89A0C700783BFD /* pager_layer.h */,
+				45C468681C89A0C700783BFD /* refresh_layer.c */,
+				45C468691C89A0C700783BFD /* refresh_layer.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		45C468631C89A0C700783BFD /* js */ = {
+			isa = PBXGroup;
+			children = (
+				45C468641C89A0C700783BFD /* pebble-js-app.js */,
+			);
+			path = js;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4517F3351B4C04DD0078F1A0 /* Aplite */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4517F33C1B4C04DD0078F1A0 /* Build configuration list for PBXNativeTarget "Aplite" */;
+			buildPhases = (
+				4517F3361B4C04DD0078F1A0 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Aplite;
+			productName = App;
+			productReference = 4587C5FA1BC976BE00FEC09B /* Aplite */;
+			productType = "com.apple.product-type.tool";
+		};
+		4517F3401B4C04F90078F1A0 /* Device Wifi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4517F3471B4C04F90078F1A0 /* Build configuration list for PBXNativeTarget "Device Wifi" */;
+			buildPhases = (
+				4517F3411B4C04F90078F1A0 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Device Wifi";
+			productName = App;
+			productReference = 4587C5FD1BC976BE00FEC09B /* Device Wifi */;
+			productType = "com.apple.product-type.tool";
+		};
+		4563F1D11B4BFC0B004709EA /* Basalt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4563F1D81B4BFC0B004709EA /* Build configuration list for PBXNativeTarget "Basalt" */;
+			buildPhases = (
+				4517F3341B4C02300078F1A0 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Basalt;
+			productName = App;
+			productReference = 4587C5FB1BC976BE00FEC09B /* Basalt */;
+			productType = "com.apple.product-type.tool";
+		};
+		459536801BCFD43C0028235C /* Device BT */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 459536821BCFD43C0028235C /* Build configuration list for PBXNativeTarget "Device BT" */;
+			buildPhases = (
+				459536811BCFD43C0028235C /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Device BT";
+			productName = App;
+			productReference = 459536851BCFD43C0028235C /* Device BT */;
+			productType = "com.apple.product-type.tool";
+		};
+		45AC6FB91BC7C67000E7BC90 /* Chalk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 45AC6FBB1BC7C67000E7BC90 /* Build configuration list for PBXNativeTarget "Chalk" */;
+			buildPhases = (
+				45AC6FBA1BC7C67000E7BC90 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Chalk;
+			productName = App;
+			productReference = 4587C5FC1BC976BE00FEC09B /* Chalk */;
+			productType = "com.apple.product-type.tool";
+		};
+		45D9B3251C37415100D7E899 /* Device CloudPebble */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 45D9B3271C37415100D7E899 /* Build configuration list for PBXNativeTarget "Device CloudPebble" */;
+			buildPhases = (
+				45D9B3261C37415100D7E899 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Device CloudPebble";
+			productName = App;
+			productReference = 45D9B32A1C37415100D7E899 /* Device CloudPebble */;
+			productType = "com.apple.product-type.tool";
+		};
+		45EC75511B4C0FFA00524DDA /* HiddenTarget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 45EC75561B4C0FFA00524DDA /* Build configuration list for PBXNativeTarget "HiddenTarget" */;
+			buildPhases = (
+				45EC754E1B4C0FFA00524DDA /* Sources */,
+				45EC754F1B4C0FFA00524DDA /* Frameworks */,
+				45EC75501B4C0FFA00524DDA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HiddenTarget;
+			productName = HiddenTarget;
+			productReference = 4587C5FE1BC976BE00FEC09B /* HiddenTarget */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		454B0ADC1B4BD21F00417493 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = CocoaBob;
+				TargetAttributes = {
+					4563F1D11B4BFC0B004709EA = {
+						CreatedOnToolsVersion = 6.4;
+					};
+					45EC75511B4C0FFA00524DDA = {
+						CreatedOnToolsVersion = 6.4;
+					};
+				};
+			};
+			buildConfigurationList = 454B0ADF1B4BD21F00417493 /* Build configuration list for PBXProject "skunk" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 454B0ADB1B4BD21F00417493;
+			productRefGroup = 454B0ADB1B4BD21F00417493;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4517F3351B4C04DD0078F1A0 /* Aplite */,
+				4563F1D11B4BFC0B004709EA /* Basalt */,
+				45AC6FB91BC7C67000E7BC90 /* Chalk */,
+				45D9B3251C37415100D7E899 /* Device CloudPebble */,
+				4517F3401B4C04F90078F1A0 /* Device Wifi */,
+				459536801BCFD43C0028235C /* Device BT */,
+				45EC75511B4C0FFA00524DDA /* HiddenTarget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4517F3341B4C02300078F1A0 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "osascript -e 'tell app \"Terminal\"' -e 'if not (exists window 1) then' -e 'do script \"\"' -e 'end if' -e 'activate' -e 'end tell' -e 'tell app \"System Events\" to keystroke \"c\" using control down' -e 'tell app \"Terminal\"' -e 'set ctx to do script \"\" in window 1' -e \"do script \\\"cd ${SRCROOT}\\\" in ctx\" -e 'do script \"pebble build\" in ctx' -e 'do script \"pebble install --emulator basalt\" in ctx' -e 'do script \"pebble logs --emulator basalt\" in ctx' -e 'end tell'";
+		};
+		4517F3361B4C04DD0078F1A0 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "osascript -e 'tell app \"Terminal\"' -e 'if not (exists window 1) then' -e 'do script \"\"' -e 'end if' -e 'activate' -e 'end tell' -e 'tell app \"System Events\" to keystroke \"c\" using control down' -e 'tell app \"Terminal\"' -e 'set ctx to do script \"\" in window 1' -e \"do script \\\"cd ${SRCROOT}\\\" in ctx\" -e 'do script \"pebble build\" in ctx' -e 'do script \"pebble install --emulator aplite\" in ctx' -e 'do script \"pebble logs --emulator aplite\" in ctx' -e 'end tell'";
+		};
+		4517F3411B4C04F90078F1A0 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "PHONE_IP=192.168.1.20\nosascript -e 'tell app \"Terminal\"' -e 'if not (exists window 1) then' -e 'do script \"\"' -e 'end if' -e 'activate' -e 'end tell' -e 'tell app \"System Events\" to keystroke \"c\" using control down' -e 'tell app \"Terminal\"' -e 'set ctx to do script \"\" in window 1' -e \"do script \\\"cd ${SRCROOT}\\\" in ctx\" -e 'do script \"pebble build\" in ctx' -e \"do script \\\"pebble install -v --phone $PHONE_IP --logs\\\" in ctx\" -e \"do script \\\"pebble logs -v --phone ${PHONE_IP}\\\" in ctx\" -e 'end tell'";
+		};
+		459536811BCFD43C0028235C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "PEBBLE_SN=\"70D6\"\nosascript -e 'tell app \"Terminal\"' -e 'if not (exists window 1) then' -e 'do script \"\"' -e 'end if' -e 'activate' -e 'end tell' -e 'tell app \"System Events\" to keystroke \"c\" using control down' -e 'tell app \"Terminal\"' -e 'set ctx to do script \"\" in window 1' -e \"do script \\\"cd ${SRCROOT}\\\" in ctx\" -e 'do script \"pebble build\" in ctx' -e \"do script \\\"pebble install --serial '/dev/cu.PebbleTime${PEBBLE_SN}-SerialPo'\\\" in ctx\" -e \"do script \\\"pebble logs --serial '/dev/cu.PebbleTime${PEBBLE_SN}-SerialPo'\\\" in ctx\" -e 'end tell'";
+		};
+		45AC6FBA1BC7C67000E7BC90 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "osascript -e 'tell app \"Terminal\"' -e 'if not (exists window 1) then' -e 'do script \"\"' -e 'end if' -e 'activate' -e 'end tell' -e 'tell app \"System Events\" to keystroke \"c\" using control down' -e 'tell app \"Terminal\"' -e 'set ctx to do script \"\" in window 1' -e \"do script \\\"cd ${SRCROOT}\\\" in ctx\" -e 'do script \"pebble build\" in ctx' -e 'do script \"pebble install --emulator chalk\" in ctx' -e 'do script \"pebble logs --emulator chalk\" in ctx' -e 'end tell'    ";
+		};
+		45D9B3261C37415100D7E899 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "osascript -e 'tell app \"Terminal\"' -e 'if not (exists window 1) then' -e 'do script \"\"' -e 'end if' -e 'activate' -e 'end tell' -e 'tell app \"System Events\" to keystroke \"c\" using control down' -e 'tell app \"Terminal\"' -e 'set ctx to do script \"\" in window 1' -e \"do script \\\"cd ${SRCROOT}\\\" in ctx\" -e 'do script \"pebble build\" in ctx' -e \"do script \\\"pebble install -v --cloudpebble --logs\\\" in ctx\" -e \"do script \\\"pebble logs -v --cloudpebble\\\" in ctx\" -e 'end tell'";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		45EC754E1B4C0FFA00524DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				45C4686D1C89A0C700783BFD /* main.c in Sources */,
+				45C4686F1C89A0C700783BFD /* refresh_layer.c in Sources */,
+				45C4686C1C89A0C700783BFD /* error_window.c in Sources */,
+				45C4686E1C89A0C700783BFD /* pager_layer.c in Sources */,
+				45C4686A1C89A0C700783BFD /* a2_strdup.c in Sources */,
+				45C4686B1C89A0C700783BFD /* card_layer.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4517F33D1B4C04DD0078F1A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = YES;
+			};
+			name = Debug;
+		};
+		4517F33E1B4C04DD0078F1A0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = NO;
+			};
+			name = Release;
+		};
+		4517F3481B4C04F90078F1A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = YES;
+			};
+			name = Debug;
+		};
+		4517F3491B4C04F90078F1A0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = NO;
+			};
+			name = Release;
+		};
+		454B0AE91B4BD21F00417493 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(PEBBLE_SDK_PATH)/Pebble/aplite/include/**",
+					"$(PEBBLE_SDK_PATH)/Pebble/basalt/include/**",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		454B0AEA1B4BD21F00417493 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(PEBBLE_SDK_PATH)/Pebble/aplite/include/**",
+					"$(PEBBLE_SDK_PATH)/Pebble/basalt/include/**",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		4563F1D61B4BFC0B004709EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = PBL_COLOR;
+				MTL_ENABLE_DEBUG_INFO = YES;
+			};
+			name = Debug;
+		};
+		4563F1D71B4BFC0B004709EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = PBL_COLOR;
+				MTL_ENABLE_DEBUG_INFO = NO;
+			};
+			name = Release;
+		};
+		459536831BCFD43C0028235C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		459536841BCFD43C0028235C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		45AC6FBC1BC7C67000E7BC90 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = PBL_COLOR;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		45AC6FBD1BC7C67000E7BC90 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = PBL_COLOR;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		45D9B3281C37415100D7E899 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		45D9B3291C37415100D7E899 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		45EC75571B4C0FFA00524DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = PBL_COLOR;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"~/Library/Application\\ Support/Pebble\\ SDK/SDKs/current/sdk-core/pebble/chalk/include/**",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		45EC75581B4C0FFA00524DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = PBL_COLOR;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"~/Library/Application\\ Support/Pebble\\ SDK/SDKs/current/sdk-core/pebble/chalk/include/**",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4517F33C1B4C04DD0078F1A0 /* Build configuration list for PBXNativeTarget "Aplite" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4517F33D1B4C04DD0078F1A0 /* Debug */,
+				4517F33E1B4C04DD0078F1A0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4517F3471B4C04F90078F1A0 /* Build configuration list for PBXNativeTarget "Device Wifi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4517F3481B4C04F90078F1A0 /* Debug */,
+				4517F3491B4C04F90078F1A0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		454B0ADF1B4BD21F00417493 /* Build configuration list for PBXProject "skunk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				454B0AE91B4BD21F00417493 /* Debug */,
+				454B0AEA1B4BD21F00417493 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4563F1D81B4BFC0B004709EA /* Build configuration list for PBXNativeTarget "Basalt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4563F1D61B4BFC0B004709EA /* Debug */,
+				4563F1D71B4BFC0B004709EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		459536821BCFD43C0028235C /* Build configuration list for PBXNativeTarget "Device BT" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				459536831BCFD43C0028235C /* Debug */,
+				459536841BCFD43C0028235C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		45AC6FBB1BC7C67000E7BC90 /* Build configuration list for PBXNativeTarget "Chalk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				45AC6FBC1BC7C67000E7BC90 /* Debug */,
+				45AC6FBD1BC7C67000E7BC90 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		45D9B3271C37415100D7E899 /* Build configuration list for PBXNativeTarget "Device CloudPebble" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				45D9B3281C37415100D7E899 /* Debug */,
+				45D9B3291C37415100D7E899 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		45EC75561B4C0FFA00524DDA /* Build configuration list for PBXNativeTarget "HiddenTarget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				45EC75571B4C0FFA00524DDA /* Debug */,
+				45EC75581B4C0FFA00524DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 454B0ADC1B4BD21F00417493 /* Project object */;
+}

@@ -1,15 +1,16 @@
 #include "pager_layer.h"
+#include "defines.h"
 
 struct PagerLayer {
     Layer *layer;
     uint8_t index;
     uint8_t count;
     /*interval use only: GTextLayoutCacheRef cache; */
+#ifdef PBL_ROUND
+    GTextAttributes *attributes;
+#endif
 };
 
-static const GSize outer_size = { 7, 7 }; // TODO: Fix magic numbers
-static const uint16_t outer_radius = 3; // TODO: extract to #define?
-static const int16_t padding = 5; // TODO: extract to #define?
 static void background_update_proc(Layer *layer, GContext* ctx);
 
 PagerLayer *pager_layer_create(GRect frame) {
@@ -23,11 +24,18 @@ PagerLayer *pager_layer_create(GRect frame) {
 
     pager_layer->index = 0;
     pager_layer->count = 0;
+#ifdef PBL_ROUND
+    pager_layer->attributes = graphics_text_attributes_create();
+    graphics_text_attributes_enable_screen_text_flow(pager_layer->attributes, TEXT_MARGIN);
+#endif
 
     return pager_layer;
 }
 
 void pager_layer_destroy(PagerLayer *pager_layer) {
+#ifdef PBL_ROUND
+    graphics_text_attributes_destroy(pager_layer->attributes);
+#endif
     layer_destroy(pager_layer->layer);
     free(pager_layer);
 }
@@ -60,30 +68,31 @@ static void background_update_proc(Layer *layer, GContext* ctx) {
         char buffer[16];
         snprintf(buffer, sizeof(buffer), "page %d/%d", index + 1, count);
         graphics_draw_text(
-            ctx,
-            buffer,
-            fonts_get_system_font(FONT_KEY_GOTHIC_18),
-            bounds,
-            GTextOverflowModeFill,
-            GTextAlignmentCenter,
-            NULL //pager_layer->cache (always NULL for third-party apps)
-        );
+                           ctx,
+                           buffer,
+                           fonts_get_system_font(FONT_KEY_GOTHIC_18),
+                           bounds,
+                           GTextOverflowModeFill,
+                           GTextAlignmentCenter,
+#ifdef PBL_ROUND
+                           pager_layer->attributes
+#else
+                           NULL //pager_layer->cache (always NULL for third-party apps)
+#endif
+                           );
     } else {
-        GRect rect = GRect(0, 0, outer_size.w * count + padding * (count - 1), outer_size.h);
-        grect_align(&rect, &bounds, GAlignCenter, false);
-
-        GRect circle_rect = rect;
-        circle_rect.size.w = outer_size.w;
-        const int16_t dx = outer_size.w + padding;
-
+        int16_t y = bounds.origin.y + bounds.size.h / 2;
+#ifdef PBL_ROUND
+        y -= 4; // Magic number to avoid round screen border
+#endif
+        int16_t x = (bounds.origin.x + bounds.size.w - PAGER_LAYER_CIRCLE_DISTANCE * (count-1)) / 2;
         for (uint8_t i = 0; i < count; i++) {
             if (i == index) {
-                graphics_fill_rect(ctx, circle_rect, outer_radius, GCornersAll);
+                graphics_fill_circle(ctx, GPoint(x, y), PAGER_LAYER_CIRCLE_RADIUS);
             } else {
-                graphics_draw_round_rect(ctx, circle_rect, outer_radius);
+                graphics_draw_circle(ctx, GPoint(x, y), PAGER_LAYER_CIRCLE_RADIUS);
             }
-
-            circle_rect.origin.x += dx;
+            x += PAGER_LAYER_CIRCLE_DISTANCE;
         }
     }
 }

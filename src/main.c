@@ -215,7 +215,7 @@ static void app_message_read_first_payload(DictionaryIterator *dict) {
 static void app_message_read_card_payload(DictionaryIterator *dict, int32_t card_index) {
     Tuple *tuple = dict_read_first(dict);
     if (!tuple) {
-        APP_LOG(APP_LOG_LEVEL_ERROR, "[CARD %ld] dict_read_first -> NULL", card_index);
+        APP_LOG(APP_LOG_LEVEL_ERROR, "[CARD %ld] dict_read_first -> NULL", (long)card_index);
         return;
     }
 
@@ -265,7 +265,7 @@ static void app_message_inbox_received(DictionaryIterator *dict, void *context) 
     Tuple *card_index_tpl = dict_find(dict, KEY_CARD_INDEX);
     if (card_index_tpl) {
         int32_t card_index = card_index_tpl->value->int32;
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "%s <- CARD %ld", __PRETTY_FUNCTION__, card_index);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "%s <- CARD %ld", __PRETTY_FUNCTION__, (long)card_index);
         app_message_read_card_payload(dict, card_index);
     } else {
         APP_LOG(APP_LOG_LEVEL_DEBUG, "%s <- MAIN", __PRETTY_FUNCTION__);

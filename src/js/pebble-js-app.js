@@ -82,7 +82,7 @@ function base64_decode(data) {
 }
 
 Skunk.loadState = function() {
-  var state_json = window.localStorage.state;
+  var state_json = localStorage.state;
   if (!state_json) return false;
 
   Skunk.state = JSON.parse(state_json);
@@ -92,15 +92,16 @@ Skunk.loadState = function() {
 Skunk.saveState = function() {
   if (!Skunk.state) return false;
 
-  window.localStorage.state = JSON.stringify(Skunk.state);
+  localStorage.state = JSON.stringify(Skunk.state);
   return true;
 };
 
 Skunk.onShowConfiguration = function() {
-  if (!window.localStorage.config || window.localStorage.config == "") {
-    var url = Skunk.domain + '/settings';
+  var url;
+  if (!localStorage.config || localStorage.config === "") {
+    url = Skunk.domain + '/settings';
   } else {
-    var url = Skunk.domain + '/settings#' + base64_encode(window.localStorage.config);
+    url = Skunk.domain + '/settings#' + base64_encode(localStorage.config);
   }
   Pebble.openURL(url);
 };
@@ -109,7 +110,7 @@ Skunk.onWebViewClosed = function(event) {
   var response = event.response;
   if (!response || base64_decode(response).indexOf('{') === -1) return;
 
-  window.localStorage.config = base64_decode(response);
+  localStorage.config = base64_decode(response);
 
   Pebble.sendAppMessage({pushing_data: true});
 };
@@ -150,14 +151,12 @@ Skunk.sendData = function(callback) {
 
   var payloads = [];
 
-  {
-    var payload = { number_of_cards: cards.length };
-    payloads.push([payload, 'main']);
-  }
+  var payload = { number_of_cards: cards.length };
+  payloads.push([payload, 'main']);
 
   for (var i = 0; i < cards.length; i++) {
     var card = cards[i];
-    var payload = { card_index: i };
+    payload = { card_index: i };
     for (var key in card) {
       payload["card_" + key] = card[key];
     }
@@ -192,7 +191,7 @@ Skunk.sendError = function(message) {
 };
 
 Skunk.fetchData = function(callback) {
-  if (!window.localStorage.config || window.localStorage.config == "") {
+  if (!localStorage.config || localStorage.config === "") {
     console.log('[fetchData] No state.');
     Skunk.sendError('Please open Settings.');
     callback(false);
@@ -228,7 +227,7 @@ Skunk.fetchData = function(callback) {
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
   console.log('[fetchData] Fetching data...');
-  xhr.send(window.localStorage.config);
+  xhr.send(localStorage.config);
 };
 
 Skunk.init = function() {

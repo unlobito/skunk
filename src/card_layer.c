@@ -45,7 +45,7 @@ CardLayer *card_layer_create(GRect frame) {
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_text_layer);
 #ifdef PBL_ROUND
     // Note: The text_layer_enable_screen_text_flow_and_paging() function must be called after
-    // the TextLayer is added to the view hierachy (i.e.: after using layer_add_child()),
+    // the TextLayer is added to the view hierarchy (i.e.: after using layer_add_child()),
     // or else it will have no effect.
     text_layer_enable_screen_text_flow_and_paging(card_layer->name_text_layer, 2);
 #endif

@@ -1,0 +1,56 @@
+{
+    "author": "Henri Watson",
+    "dependencies": {},
+    "keywords": [],
+    "name": "skunk",
+    "pebble": {
+        "capabilities": [
+            "configurable"
+        ],
+        "displayName": "Skunk",
+        "enableMultiJS": false,
+        "messageKeys": {
+            "card_barcode_data": 22,
+            "card_index": 20,
+            "card_name": 23,
+            "card_value": 21,
+            "error": 99,
+            "fetch_data": 0,
+            "number_of_cards": 10,
+            "pushing_data": 1,
+            "rewards_updated_at": 13
+        },
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/refresh.png",
+                    "name": "IMAGE_REFRESH",
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/icon.png",
+                    "menuIcon": true,
+                    "name": "IMAGE_MENU_ICON",
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/error.png",
+                    "name": "IMAGE_ERROR",
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk"
+        ],
+        "uuid": "1e420b43-63be-45f7-822c-2a7d57a55384",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.4.0"
+}

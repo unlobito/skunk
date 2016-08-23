@@ -232,7 +232,6 @@ bool card_layer_set_index(CardLayer *card_layer, uint8_t index) {
     layer_mark_dirty(card_layer->layer);
 
     // NAME
-
     if (card_layer->name_text) free(card_layer->name_text);
 
     const uint32_t name_key = STORAGE_CARD_VALUE(NAME, index);
@@ -248,17 +247,14 @@ bool card_layer_set_index(CardLayer *card_layer, uint8_t index) {
       layer_set_hidden((Layer *)card_layer->value_text_layer, false);
 
       if (card_layer->value_text) free(card_layer->value_text);
-
       const uint32_t value_key = STORAGE_CARD_VALUE(VALUE, index);
       char value_buffer[32];
       int value_bytes_read = persist_read_string(value_key, value_buffer, sizeof(value_buffer));
       value_buffer[MAX(0, value_bytes_read)] = '\0';
-
       card_layer->value_text = strdup(value_buffer);
       text_layer_set_text(card_layer->value_text_layer, card_layer->value_text);
     } else {
       layer_set_hidden((Layer *)card_layer->value_text_layer, true);
     }
-
     return true;
 }

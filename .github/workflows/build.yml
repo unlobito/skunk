@@ -1,0 +1,30 @@
+name: "Build"
+on:
+  pull_request:
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cachix/install-nix-action@v18
+    - uses: cachix/cachix-action@v12
+      with:
+        name: pebble
+        skipPush: true
+    - name: Perform build
+      run: |
+        set -euxo pipefail
+        OUT_PATH="$(nix-build)"
+        mkdir dist
+        cp -r $OUT_PATH/* dist/
+    - name: Archive pbw
+      uses: actions/upload-artifact@v2
+      with:
+        name: skunk.pbw
+        path: dist/skunk.pbw
+    - name: Archive appstore bundle
+      uses: actions/upload-artifact@v2
+      with:
+        name: skunk-appstore-bundle.tar.gz
+        path: dist/appstore-bundle.tar.gz

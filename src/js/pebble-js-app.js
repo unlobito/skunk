@@ -1,6 +1,6 @@
 var Skunk = {};
 
-Skunk.domain = 'https://skunkapp.herokuapp.com';
+Skunk.domain = 'https://skunk-config.canidae.systems';
 Skunk.state = null;
 Skunk.token = '';
 Skunk.updating = false;

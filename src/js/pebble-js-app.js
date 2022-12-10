@@ -1,10 +1,10 @@
 var Skunk = {};
 
-Skunk.domain = 'https://skunkapp.herokuapp.com';
+Skunk.domain = 'https://skunk-config.canidae.systems';
 Skunk.state = null;
 Skunk.token = '';
 Skunk.updating = false;
-Skunk.version = encodeURIComponent('1.4');
+Skunk.version = encodeURIComponent('1.7');
 
 // http://phpjs.org/functions/base64_encode/
 function base64_encode(data) {

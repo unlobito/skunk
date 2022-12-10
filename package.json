@@ -1,5 +1,5 @@
 {
-    "author": "Henri Watson",
+    "author": "Harley Watson",
     "dependencies": {},
     "keywords": [],
     "name": "skunk",
@@ -52,5 +52,5 @@
             "watchface": false
         }
     },
-    "version": "1.6.0"
+    "version": "1.7.0"
 }

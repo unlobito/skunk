@@ -1,6 +1,6 @@
 { pebbleDotNixSrc ? builtins.fetchTarball {
-    url = "https://github.com/Sorixelle/pebble.nix/archive/a7be1fd6523b32f176a9558c7719beab94f9ba1c.tar.gz";
-    sha256 = "1x8izcv77biwx8l8ic57vfz72yg9p4v1k36f1z97lcl7631vyhy7";
+    url = "https://github.com/Sorixelle/pebble.nix/archive/24c445d0766573f7b09982b5ff3cedf9622c2723.tar.gz";
+    sha256 = "1cnbz4d4r8b5gpvc45dmgj1pj24qxdry6xh4rrikqrdjialfvq6w";
   }
 , pebbleDotNix ? import pebbleDotNixSrc
 , packageJSON ? builtins.fromJSON (builtins.readFile ./package.json)

@@ -8,9 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: cachix/install-nix-action@v18
-    - uses: cachix/cachix-action@v12
+    - uses: actions/checkout@v5
+    - uses: cachix/install-nix-action@v31
+    - uses: cachix/cachix-action@v16
       with:
         name: pebble
         skipPush: true
@@ -21,12 +21,12 @@ jobs:
         mkdir dist
         cp -r $OUT_PATH/* dist/
     - name: Archive pbw
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: skunk.pbw
         path: dist/skunk.pbw
     - name: Archive appstore bundle
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: skunk-appstore-bundle.tar.gz
         path: dist/appstore-bundle.tar.gz

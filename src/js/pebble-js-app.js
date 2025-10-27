@@ -224,7 +224,7 @@ Skunk.fetchData = function(callback) {
     callback(false);
   };
 
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.setRequestHeader('Content-Type', 'application/json');
 
   console.log('[fetchData] Fetching data...');
   xhr.send(localStorage.config);

@@ -45,7 +45,9 @@
         "targetPlatforms": [
             "aplite",
             "basalt",
-            "chalk"
+            "chalk",
+            "emery",
+            "gabbro"
         ],
         "uuid": "1e420b43-63be-45f7-822c-2a7d57a55384",
         "watchapp": {

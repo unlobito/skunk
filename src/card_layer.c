@@ -29,14 +29,14 @@ CardLayer *card_layer_create(GRect frame) {
     layer_set_update_proc(card_layer->layer, background_update_proc);
     *(CardLayer **)layer_get_data(card_layer->layer) = card_layer;
     
-    card_layer->name_background_layer = layer_create(GRect(0, 0, PEBBLE_WIDTH, CARD_LAYER_NAME_HEIGHT));
+    card_layer->name_background_layer = layer_create(GRect(0, 0, screen.size.w, CARD_LAYER_NAME_HEIGHT));
     layer_set_update_proc(card_layer->name_background_layer, name_background_update_proc);
     layer_add_child(card_layer->layer, (Layer *)card_layer->name_background_layer);
     int16_t text_y = (CARD_LAYER_NAME_HEIGHT - TEXT_HEIGHT) / 2;
 #ifdef PBL_ROUND
     text_y += 4; // Magic number to avoid round screen border
 #endif
-    card_layer->name_text_layer = text_layer_create(GRect(0, text_y, PEBBLE_WIDTH, TEXT_HEIGHT));
+    card_layer->name_text_layer = text_layer_create(GRect(0, text_y, screen.size.w, TEXT_HEIGHT));
     text_layer_set_background_color(card_layer->name_text_layer, GColorBlack);
     text_layer_set_font(card_layer->name_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->name_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -51,7 +51,7 @@ CardLayer *card_layer_create(GRect frame) {
 #endif
 
 
-    card_layer->value_text_layer = text_layer_create(GRect(0, frame.size.h - CARD_LAYER_VALUE_HEIGHT, PEBBLE_WIDTH, CARD_LAYER_VALUE_HEIGHT));
+    card_layer->value_text_layer = text_layer_create(GRect(0, frame.size.h - CARD_LAYER_VALUE_HEIGHT, screen.size.w, CARD_LAYER_VALUE_HEIGHT));
     text_layer_set_background_color(card_layer->value_text_layer, GColorWhite);
     text_layer_set_font(card_layer->value_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
     text_layer_set_overflow_mode(card_layer->value_text_layer, GTextOverflowModeTrailingEllipsis);
@@ -87,20 +87,20 @@ static void draw_barcode_matrix(CardLayer *card_layer, GContext* ctx) {
 
     // name_text_layer and pager_layer need to be subtracted from the pebble height
     // as does twice the WHITE_BORDER
-    const int16_t MAX_HEIGHT = PEBBLE_HEIGHT - CARD_LAYER_NAME_HEIGHT - PAGER_LAYER_HEIGHT;
+    const int16_t MAX_HEIGHT = screen.size.h - CARD_LAYER_NAME_HEIGHT - PAGER_LAYER_HEIGHT;
 
     // The mid point between the black border at the top (name_layer) and at the bottom (pager_layer)
     // is not exactly in the middle of the screen
-    const int16_t MID_HEIGHT = (PEBBLE_HEIGHT - CARD_LAYER_NAME_HEIGHT - PAGER_LAYER_HEIGHT) / 2 + CARD_LAYER_NAME_HEIGHT;
+    const int16_t MID_HEIGHT = (screen.size.h - CARD_LAYER_NAME_HEIGHT - PAGER_LAYER_HEIGHT) / 2 + CARD_LAYER_NAME_HEIGHT;
     
-    const int16_t MID_WIDTH = PEBBLE_WIDTH / 2;
+    const int16_t MID_WIDTH = screen.size.w / 2;
     
     const int16_t CONTENT_MARGIN = 1;
 
     // Non-linear barcodes are scaled to save persistent storage space. Dynamically calculate
     // the maximum integer scaling factor, keep a white border of 1 units around.
 
-    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + CONTENT_MARGIN * 2);
+    const int16_t SCALING_FACTOR_X = screen.size.w / (card_layer->barcode_width + CONTENT_MARGIN * 2);
     const int16_t SCALING_FACTOR_Y = MAX_HEIGHT / (card_layer->barcode_height + CONTENT_MARGIN * 2);
 
     // actual scaling factor is the least of x and y scaling, but at least 1
@@ -150,11 +150,11 @@ static void draw_barcode_linear(CardLayer *card_layer, GContext* ctx) {
     const int16_t CONTENT_MARGIN = 1;
 
     // Try to do an integer scale if possible, keep white border of 1 unit on each side
-    const int16_t SCALING_FACTOR_X = PEBBLE_WIDTH / (card_layer->barcode_width + CONTENT_MARGIN * 2);
+    const int16_t SCALING_FACTOR_X = screen.size.w / (card_layer->barcode_width + CONTENT_MARGIN * 2);
     const int16_t SCALING_FACTOR = MAX( SCALING_FACTOR_X, 1);
 
-    const int16_t first_point_x = PEBBLE_WIDTH / 2 - (SCALING_FACTOR * card_layer->barcode_width) / 2;
-    const int16_t first_point_y = PEBBLE_HEIGHT / 2 - card_layer->barcode_height / 2;
+    const int16_t first_point_x = screen.size.w / 2 - (SCALING_FACTOR * card_layer->barcode_width) / 2;
+    const int16_t first_point_y = screen.size.h / 2 - card_layer->barcode_height / 2;
 
     // The comparison part of this loop adds 7 to the barcode width to allow C
     // to ceil the byte count. Since the server will always pad incomplete bytes

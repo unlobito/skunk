@@ -1,12 +1,6 @@
 #pragma once
 
-#ifdef PBL_ROUND
-#define PEBBLE_HEIGHT 180
-#define PEBBLE_WIDTH 180
-#else
-#define PEBBLE_HEIGHT 168
-#define PEBBLE_WIDTH 144
-#endif
+#include <pebble.h>
 
 #define TEXT_MARGIN 4
 #define TEXT_HEIGHT 22
@@ -59,5 +53,7 @@ enum {
     BARCODE_LINEAR                     = 1,
 };
 
+
+GRect screen;
 
 #define STORAGE_CARD_VALUE(NAME, INDEX) (20 + 10 * (INDEX) + (STORAGE_CARD_ ## NAME ## _OFFSET))

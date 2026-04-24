@@ -98,6 +98,9 @@ static void upgrade(void) {
 }
 
 static void window_load(Window *window) {
+    Layer *window_layer = window_get_root_layer(window);
+    screen = layer_get_bounds(window_layer);
+
     card_layer_init();
     pager_layer_init();
     refresh_layer_init();
@@ -299,7 +302,7 @@ static void app_message_send_fetch_data(void) {
 }
 
 static void card_layer_init(void) {
-    card_layer = card_layer_create(GRect(0, 0, PEBBLE_WIDTH, PEBBLE_HEIGHT - PAGER_LAYER_HEIGHT));
+    card_layer = card_layer_create(GRect(0, 0, screen.size.w, screen.size.h - PAGER_LAYER_HEIGHT));
     card_layer_set_index(card_layer, 0);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -311,7 +314,7 @@ static void card_layer_deinit(void) {
 }
 
 static void pager_layer_init(void) {
-    pager_layer = pager_layer_create(GRect(0, PEBBLE_HEIGHT - PAGER_LAYER_HEIGHT, PEBBLE_WIDTH, PAGER_LAYER_HEIGHT));
+    pager_layer = pager_layer_create(GRect(0, screen.size.h - PAGER_LAYER_HEIGHT, screen.size.w, PAGER_LAYER_HEIGHT));
     pager_layer_set_values(pager_layer, 0, 1);
 
     Layer *root_layer = window_get_root_layer(window);
@@ -323,7 +326,7 @@ static void pager_layer_deinit(void) {
 }
 
 static void refresh_layer_init(void) {
-    refresh_layer = refresh_layer_create(GRect(TEXT_MARGIN, (PEBBLE_HEIGHT - REFRESH_LAYER_HEIGHT) / 2, PEBBLE_WIDTH - TEXT_MARGIN * 2, REFRESH_LAYER_HEIGHT));
+    refresh_layer = refresh_layer_create(GRect(TEXT_MARGIN, (screen.size.h - REFRESH_LAYER_HEIGHT) / 2, screen.size.w - TEXT_MARGIN * 2, REFRESH_LAYER_HEIGHT));
 
     Layer *base_layer = refresh_layer_get_layer(refresh_layer);
     layer_set_hidden(base_layer, true);
